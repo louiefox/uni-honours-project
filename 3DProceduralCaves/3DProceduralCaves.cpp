@@ -8,6 +8,7 @@
 
 #include "shader.h"
 #include "camera.h"
+#include "texture.h"
 #include "stb_image.h"
 
 // Global variables
@@ -73,31 +74,8 @@ int main()
 	Shader shaderProgram = Shader("assets/shaders/vertex_shader.vs", "assets/shaders/fragment_shader.fs");
 
 	// Create container texture
-	unsigned int containerTexture;
-	glGenTextures(1, &containerTexture);
-	glBindTexture(GL_TEXTURE_2D, containerTexture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT); // wrapping
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // minification/magnification filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	stbi_set_flip_vertically_on_load(true); // flip image y-axis, textures 0.0 y-axis is bottom, images is top
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load("assets/textures/container.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-
-	stbi_image_free(data); // free loaded memory
+	Texture containerTexture = Texture("assets/textures/container.jpg");
 
 	// --------------------------------------
 	// CREATE CUBE
@@ -207,7 +185,7 @@ int main()
 
 		// Textures - bind container texture to first sampler
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, containerTexture);
+		glBindTexture(GL_TEXTURE_2D, containerTexture.ID);
 
 		// Use shader
 		shaderProgram.use();
