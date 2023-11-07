@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "shader.h"
+#include "camera.h"
 #include "stb_image.h"
 
 // Global variables
@@ -16,12 +17,9 @@ unsigned int screenHeight = 600;
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrameTime = 0.0f; // Time of last frame
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-float yaw = -90.0f, pitch = 0.0f;
-float fov = 45.0f;
 float lastX = screenWidth / 2.0f, lastY = screenHeight / 2.0f; // last mouse position (center of screen)
+
+Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -215,10 +213,10 @@ int main()
 		shaderProgram.use();
 
 		// Transformations
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); // view matrix using camera data and look at function
+		glm::mat4 view = viewCamera.getViewMatrix(); // view matrix using camera data and look at function
 		shaderProgram.setMat4("view", view);
 
-		glm::mat4 projection = glm::perspective(glm::radians(fov), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f); // projection matrix using perspective
+		glm::mat4 projection = glm::perspective(glm::radians(viewCamera.getFOV()), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f); // projection matrix using perspective
 		shaderProgram.setMat4("projection", projection);
 
 		// Draw containers
@@ -275,15 +273,13 @@ void processInput(GLFWwindow* window)
 	const bool isShiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 	const float cameraSpeed = static_cast<float>((isShiftPressed ? 20.0f : 5.0f) * deltaTime); // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraFront;
+		viewCamera.applyKeyboardInput(FORWARD, cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		viewCamera.applyKeyboardInput(FORWARD, -cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
-	//cameraPos.y = 0.0f; // disable vertical movement
+		viewCamera.applyKeyboardInput(RIGHT, cameraSpeed);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		viewCamera.applyKeyboardInput(RIGHT, -cameraSpeed);
 }
 
 bool firstMouse = true;
@@ -302,25 +298,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
 	lastX = xpos, lastY = ypos;
 
-	// apply sensitivity
-	const float sensitivity = 0.1f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
 	// adjust camera angles by offsets
-	yaw += xoffset;
-	pitch = std::max(std::min(pitch + yoffset, 89.0f), -89.0f); // lock pitch angles
-
-	// adjust camera front normal vector based on angles
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
+	viewCamera.applyMouseInput(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	// adjust fov on scroll
-	fov = std::max(std::min(fov - 2.0f * (float)yoffset, 45.0f), 1.0f);
+	viewCamera.setFOV(viewCamera.getFOV() + -2.0f * (float)yoffset);
 }
