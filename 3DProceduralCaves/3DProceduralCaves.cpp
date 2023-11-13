@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
+#include "plane.h"
 #include "stb_image.h"
 
 // Global variables
@@ -159,9 +160,19 @@ int main()
 	shaderProgram.use();
 	shaderProgram.setInt("textureSampler", 0); // set texture sampler to 0
 
-	// random cube positions
+	// rectangles to draw - currently using 1, just saving this for later
 	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f)
+		glm::vec3(0.0f,  -1.0f,  0.0f),
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(0.0f,  1.0f,  0.0f),
+		glm::vec3(0.0f,  2.0f,  0.0f)
+	};
+
+	Plane planesToDraw[] = {
+		Plane(1),
+		Plane(4),
+		Plane(9),
+		Plane(81)
 	};
 
 	// --------------------------------------
@@ -196,19 +207,18 @@ int main()
 		shaderProgram.setMat4("projection", projection);
 
 		// Draw containers
-		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 1; i++)
+		int planeIndex = 0;
+		for (Plane& plane : planesToDraw)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-
-			//float angle = 20.0f * i;
-			//model = glm::rotate(model, glm::radians(angle) + ((float)glfwGetTime() * glm::radians(50.0f)), glm::vec3(1.0f, 0.3f, 0.5f));
-			model = glm::scale(model, glm::vec3(2.0, 2.0, 10.0));
+			model = glm::translate(model, cubePositions[planeIndex]);
+			//model = glm::scale(model, glm::vec3(2.0, 2.0, 10.0));
 
 			shaderProgram.setMat4("model", model);
 
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			plane.Draw();
+
+			planeIndex++;
 		}
 
 		// Swap buffers and check/call events
@@ -217,9 +227,6 @@ int main()
 	}
 
 	// Cleanup
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram.ID);
 
 	// Terminate
@@ -239,7 +246,7 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	// Testing polygon render modes
+	// Testing polygon render modes - add keys to switch between smooth/flat shading
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
