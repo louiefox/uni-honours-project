@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "plane.h"
+#include "line.h"
 #include "stb_image.h"
 
 // Global variables
@@ -73,6 +74,7 @@ int main()
 
 	// Create shader
 	Shader shaderProgram = Shader("assets/shaders/vertex_shader.vs", "assets/shaders/fragment_shader.fs");
+	Shader lineShaderProgram = Shader("assets/shaders/line_vertex_shader.vs", "assets/shaders/line_fragment_shader.fs");
 
 	// Create container texture
 	stbi_set_flip_vertically_on_load(true); // flip image y-axis, textures 0.0 y-axis is bottom, images is top
@@ -173,7 +175,14 @@ int main()
 		Plane(4),
 		Plane(9),
 		Plane(81)
+	};	
+	
+	Line linesToDraw[] = {
+		Line(glm::vec3(0.0f,  0.0f,  0.0f), glm::vec3(5.0f,  0.0f,  5.0f))
 	};
+
+	lineShaderProgram.use();
+	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
 	// --------------------------------------
 	// RENDER LOOP
@@ -206,7 +215,7 @@ int main()
 		glm::mat4 projection = glm::perspective(glm::radians(viewCamera.getFOV()), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f); // projection matrix using perspective
 		shaderProgram.setMat4("projection", projection);
 
-		// Draw containers
+		// Draw planes
 		int planeIndex = 0;
 		for (Plane& plane : planesToDraw)
 		{
@@ -219,6 +228,16 @@ int main()
 			plane.Draw();
 
 			planeIndex++;
+		}
+		
+		// Draw lines
+		lineShaderProgram.use();
+		lineShaderProgram.setMat4("view", view);
+		lineShaderProgram.setMat4("projection", projection);
+
+		for (Line& line : linesToDraw)
+		{
+			line.Draw();
 		}
 
 		// Swap buffers and check/call events
