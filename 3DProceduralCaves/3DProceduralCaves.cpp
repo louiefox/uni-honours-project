@@ -11,6 +11,7 @@
 #include "texture.h"
 #include "plane.h"
 #include "line.h"
+#include "cave_generator.h"
 #include "stb_image.h"
 
 // Global variables
@@ -23,6 +24,8 @@ float lastFrameTime = 0.0f; // Time of last frame
 float lastX = screenWidth / 2.0f, lastY = screenHeight / 2.0f; // last mouse position (center of screen)
 
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+CaveGenerator caveGenerator = CaveGenerator();
 
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -177,10 +180,6 @@ int main()
 		Plane(81)
 	};	
 	
-	Line linesToDraw[] = {
-		Line(glm::vec3(0.0f,  0.0f,  0.0f), glm::vec3(5.0f,  0.0f,  5.0f))
-	};
-
 	lineShaderProgram.use();
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
@@ -235,10 +234,10 @@ int main()
 		lineShaderProgram.setMat4("view", view);
 		lineShaderProgram.setMat4("projection", projection);
 
-		for (Line& line : linesToDraw)
+		for (Line* line : caveGenerator.drawLines)
 		{
-			line.Draw();
-		}
+			line->Draw();
+		}		
 
 		// Swap buffers and check/call events
 		glfwSwapBuffers(window);
@@ -259,6 +258,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height); // Set viewport with new size again
 }
 
+float nextGenerationTime = 0.0f;
 void processInput(GLFWwindow* window)
 {
 	// Window close input
@@ -272,6 +272,13 @@ void processInput(GLFWwindow* window)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	
+	// Cave generation testing
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && glfwGetTime() >= nextGenerationTime)
+	{
+		nextGenerationTime = glfwGetTime() + 0.5f;
+		caveGenerator.Generate();
+	}
 
 	// Camera input
 	const bool isShiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
