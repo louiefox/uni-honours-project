@@ -12,6 +12,7 @@
 #include "plane.h"
 #include "line.h"
 #include "cave_generator.h"
+#include "cave_generator_2.h"
 #include "stb_image.h"
 
 // Global variables
@@ -26,6 +27,7 @@ float lastX = screenWidth / 2.0f, lastY = screenHeight / 2.0f; // last mouse pos
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 CaveGenerator caveGenerator = CaveGenerator();
+CaveGenerator2 caveGenerator2 = CaveGenerator2();
 
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -237,6 +239,11 @@ int main()
 		for (Line* line : caveGenerator.drawLines)
 		{
 			line->Draw();
+		}				
+		
+		for (Line* line : caveGenerator2.drawLines)
+		{
+			line->Draw();
 		}		
 
 		// Swap buffers and check/call events
@@ -278,6 +285,11 @@ void processInput(GLFWwindow* window)
 	{
 		nextGenerationTime = glfwGetTime() + 0.5f;
 		caveGenerator.Generate();
+	}	
+	else if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS && glfwGetTime() >= nextGenerationTime)
+	{
+		nextGenerationTime = glfwGetTime() + 0.5f;
+		caveGenerator2.Generate();
 	}
 
 	// Camera input

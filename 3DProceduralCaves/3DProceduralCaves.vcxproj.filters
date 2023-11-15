@@ -47,5 +47,8 @@
     <ClInclude Include="cave_generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cave_generator_2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="cave_generator.h" />
+    <ClInclude Include="cave_generator_2.h" />
     <ClInclude Include="line.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="shader.h" />
