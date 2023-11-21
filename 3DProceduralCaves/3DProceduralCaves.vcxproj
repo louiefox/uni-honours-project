@@ -140,11 +140,13 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="cave_generator.h" />
     <ClInclude Include="cave_generator_2.h" />
+    <ClInclude Include="game_object.h" />
     <ClInclude Include="line.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="tunnel_mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -91,7 +91,7 @@ public:
 
 private:
 	std::string CurrentString = "0";
-	float lineLength = 0.1f;
+	float lineLength = 1.0f;
 	float adjustAngle = 45.0f;
 
 	const glm::vec2& getLineEndPos(glm::vec2 startPos, float angle)

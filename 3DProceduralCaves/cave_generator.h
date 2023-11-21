@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "line.h"
+#include "tunnel_mesh.h"
 
 struct LSystemValue
 {
@@ -13,6 +14,7 @@ class CaveGenerator
 {
 public:
 	std::vector<Line*> drawLines;
+	std::vector<TunnelMesh*> tunnelMeshes;
 	int currentIteration = 0;
 
 	CaveGenerator()
@@ -23,7 +25,10 @@ public:
 	~CaveGenerator()
 	{
 		for (Line* line : drawLines)
-			delete line;
+			delete line;		
+		
+		for (TunnelMesh* mesh : tunnelMeshes)
+			delete mesh;
 	}
 
 	void Generate()
@@ -55,6 +60,11 @@ public:
 
 	void UpdateDraw()
 	{
+		for (TunnelMesh* mesh : tunnelMeshes)
+			delete mesh;
+
+		tunnelMeshes = {};
+		
 		for (Line* line : drawLines)
 			delete line;
 
@@ -67,13 +77,21 @@ public:
 			switch (CurrentString[i])
 			{
 				case 'F':
+				{
 					glm::vec2 endPos = getLineEndPos(currentValue.Position, currentValue.Rotation);
 
 					// create new line mesh, swap x/y around and invert z so tree is facing forward
 					drawLines.push_back(new Line(glm::vec3(currentValue.Position.y, 0.0f, -currentValue.Position.x), glm::vec3(endPos.y, 0.0f, -endPos.x)));
 
+					TunnelMesh* tunnelPiece = new TunnelMesh();
+					tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (endPos.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-endPos.x - -currentValue.Position.x) / 2));
+					tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
+
+					tunnelMeshes.push_back(tunnelPiece);
+
 					currentValue.Position = endPos;
 					break;
+				}
 				case '-':
 					currentValue.Rotation -= adjustAngle;
 					break;				
@@ -93,8 +111,8 @@ public:
 
 private:
 	std::string CurrentString = "X";
-	float lineLength = 0.25f;
-	float adjustAngle = 25.0f;
+	float lineLength = 1.0f;
+	float adjustAngle = 45.0f;
 
 	const glm::vec2& getLineEndPos(glm::vec2 startPos, float angle)
 	{

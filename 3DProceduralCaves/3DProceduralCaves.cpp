@@ -9,6 +9,8 @@
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
+#include "tunnel_mesh.h"
+#include "game_object.h"
 #include "plane.h"
 #include "line.h"
 #include "cave_generator.h"
@@ -34,6 +36,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+
+void rotateByDegrees(glm::mat4& model, const glm::vec3& rotation)
+{
+	model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0, 0.0, 0.0));
+	model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0, 1.0, 0.0));
+	model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0, 0.0, 1.0));
+}
 
 int main()
 {
@@ -166,21 +175,6 @@ int main()
 	// shader program stuff
 	shaderProgram.use();
 	shaderProgram.setInt("textureSampler", 0); // set texture sampler to 0
-
-	// rectangles to draw - currently using 1, just saving this for later
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  -1.0f,  0.0f),
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(0.0f,  1.0f,  0.0f),
-		glm::vec3(0.0f,  2.0f,  0.0f)
-	};
-
-	Plane planesToDraw[] = {
-		Plane(1),
-		Plane(4),
-		Plane(9),
-		Plane(81)
-	};	
 	
 	lineShaderProgram.use();
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
@@ -217,18 +211,14 @@ int main()
 		shaderProgram.setMat4("projection", projection);
 
 		// Draw planes
-		int planeIndex = 0;
-		for (Plane& plane : planesToDraw)
+		for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[planeIndex]);
-			//model = glm::scale(model, glm::vec3(2.0, 2.0, 10.0));
+			model = glm::translate(model, tunnelMesh->GetPosition());
+			model = glm::scale(model, tunnelMesh->GetScale());
+			rotateByDegrees(model, tunnelMesh->GetRotation());
 
-			shaderProgram.setMat4("model", model);
-
-			plane.Draw();
-
-			planeIndex++;
+			tunnelMesh->Draw(shaderProgram, model);
 		}
 		
 		// Draw lines
