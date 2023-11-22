@@ -31,7 +31,7 @@ public:
 	void applyMouseInput(float xOffset, float yOffset)
 	{
 		// apply sensitivity
-		const float sensitivity = 0.1f;
+		const float sensitivity = 0.05f;
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
