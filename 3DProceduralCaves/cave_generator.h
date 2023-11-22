@@ -112,7 +112,7 @@ public:
 private:
 	std::string CurrentString = "X";
 	float lineLength = 1.25f;
-	float adjustAngle = 45.0f;
+	float adjustAngle = 25.0f;
 
 	const glm::vec2& getLineEndPos(glm::vec2 startPos, float radians)
 	{

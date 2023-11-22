@@ -28,6 +28,7 @@ float lastX = screenWidth / 2.0f, lastY = screenHeight / 2.0f; // last mouse pos
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 CaveGenerator caveGenerator = CaveGenerator();
+bool showTunnelMeshes = true;
 
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -88,7 +89,7 @@ int main()
 	Shader shaderProgram = Shader("assets/shaders/vertex_shader.vs", "assets/shaders/fragment_shader.fs");
 	Shader lineShaderProgram = Shader("assets/shaders/line_vertex_shader.vs", "assets/shaders/line_fragment_shader.fs");
 
-	// Create container texture
+	// Create rock texture
 	stbi_set_flip_vertically_on_load(true); // flip image y-axis, textures 0.0 y-axis is bottom, images is top
 	Texture rockTexture = Texture("assets/textures/rock.jpg");
 
@@ -98,6 +99,8 @@ int main()
 	
 	lineShaderProgram.use();
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
+
+	caveGenerator.Generate();
 
 	// --------------------------------------
 	// RENDER LOOP
@@ -131,14 +134,17 @@ int main()
 		shaderProgram.setMat4("projection", projection);
 
 		// Draw planes
-		for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
+		if (showTunnelMeshes)
 		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, tunnelMesh->GetPosition());
-			model = glm::scale(model, tunnelMesh->GetScale());
-			rotateByDegrees(model, tunnelMesh->GetRotation());
+			for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
+			{
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, tunnelMesh->GetPosition());
+				model = glm::scale(model, tunnelMesh->GetScale());
+				rotateByDegrees(model, tunnelMesh->GetRotation());
 
-			tunnelMesh->Draw(shaderProgram, model);
+				tunnelMesh->Draw(shaderProgram, model);
+			}
 		}
 		
 		// Draw lines
@@ -190,6 +196,11 @@ void processInput(GLFWwindow* window)
 	{
 		nextGenerationTime = glfwGetTime() + 0.5f;
 		caveGenerator.Generate();
+	}		
+	else if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS && glfwGetTime() >= nextGenerationTime)
+	{
+		nextGenerationTime = glfwGetTime() + 0.5f;
+		showTunnelMeshes = not showTunnelMeshes;
 	}	
 
 	// Camera input
