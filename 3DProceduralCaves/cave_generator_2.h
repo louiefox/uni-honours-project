@@ -28,14 +28,14 @@ public:
 			// rules
 			switch (CurrentString[i])
 			{
-			case '1':
-				nextString += "11";
-				break;
-			case '0':
-				nextString += "1[0]0";
-				break;
-			default:
-				nextString += CurrentString[i];
+				case '1':
+					nextString += "11";
+					break;
+				case '0':
+					nextString += "1[0]0";
+					break;
+				default:
+					nextString += CurrentString[i];
 			}
 		}
 

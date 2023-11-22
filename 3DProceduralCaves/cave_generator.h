@@ -78,7 +78,7 @@ public:
 			{
 				case 'F':
 				{
-					glm::vec2 endPos = getLineEndPos(currentValue.Position, currentValue.Rotation);
+					glm::vec2 endPos = getLineEndPos(currentValue.Position, glm::radians(currentValue.Rotation));
 
 					// create new line mesh, swap x/y around and invert z so tree is facing forward
 					drawLines.push_back(new Line(glm::vec3(currentValue.Position.y, 0.0f, -currentValue.Position.x), glm::vec3(endPos.y, 0.0f, -endPos.x)));
@@ -111,11 +111,11 @@ public:
 
 private:
 	std::string CurrentString = "X";
-	float lineLength = 1.0f;
+	float lineLength = 1.25f;
 	float adjustAngle = 45.0f;
 
-	const glm::vec2& getLineEndPos(glm::vec2 startPos, float angle)
+	const glm::vec2& getLineEndPos(glm::vec2 startPos, float radians)
 	{
-		return glm::vec2(startPos.x + (lineLength * std::cos(angle)), startPos.y + (lineLength * std::sin(angle)));
+		return glm::vec2(startPos.x + (lineLength * std::cos(radians)), startPos.y + (lineLength * std::sin(radians)));
 	}
 };
