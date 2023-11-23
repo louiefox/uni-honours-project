@@ -6,6 +6,11 @@
 
 #include <iostream>
 
+#include "stb_image.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
@@ -14,7 +19,6 @@
 #include "plane.h"
 #include "line.h"
 #include "cave_generator.h"
-#include "stb_image.h"
 
 // Global variables
 unsigned int screenWidth = 1920;
@@ -69,6 +73,17 @@ int main()
 		return -1;
 	}
 
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+	ImGui_ImplOpenGL3_Init();
+
 	// Set viewport and callback for window size changed
 	glViewport(0, 0, screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -111,6 +126,36 @@ int main()
 		float currentFrameTime = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
+
+		glfwPollEvents();
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		//ImGui::ShowDemoWindow(); // Show demo window! :)
+		if (true)
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+
+			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			//ImGui::Checkbox("Another Window", &show_another_window);
+
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+			ImGui::End();
+		}
 
 		// Process input
 		processInput(window);
@@ -155,18 +200,28 @@ int main()
 		for (Line* line : caveGenerator.drawLines)
 		{
 			line->Draw();
-		}				
+		}
+
+		// ImGui render
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Swap buffers and check/call events
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	// Cleanup
 	glDeleteProgram(shaderProgram.ID);
 
+	// Cleanup ImGui
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 	// Terminate
+	glfwDestroyWindow(window);
 	glfwTerminate();
+
 	return 0;
 }
 
