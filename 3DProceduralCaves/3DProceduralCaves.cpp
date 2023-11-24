@@ -29,6 +29,8 @@ float lastFrameTime = 0.0f; // Time of last frame
 
 float lastX = screenWidth / 2.0f, lastY = screenHeight / 2.0f; // last mouse position (center of screen)
 
+bool mouseInputEnabled = true;
+
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 CaveGenerator caveGenerator = CaveGenerator();
@@ -120,6 +122,7 @@ int main()
 	// --------------------------------------
 	// RENDER LOOP
 	// --------------------------------------
+	float my_color[4] = {0.0, 0.0, 0.0, 0.0};
 	while (!glfwWindowShouldClose(window))
 	{
 		// Frame time
@@ -133,29 +136,28 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		//ImGui::ShowDemoWindow(); // Show demo window! :)
-		if (true)
+
+		// Create a window example
+		ImGui::Begin("Program Parameters", NULL, ImGuiWindowFlags_MenuBar);
+		if (ImGui::BeginMenuBar())
 		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			//ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-			ImGui::End();
+			if (ImGui::BeginMenu("Options"))
+			{
+				if (ImGui::MenuItem("Option 1", "Ctrl+O")) { }
+				if (ImGui::MenuItem("Option 2", "Ctrl+1")) { }
+				if (ImGui::MenuItem("Option 3", "Ctrl+2")) { }
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
 		}
+
+		// Display contents in a scrolling region
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+		ImGui::BeginChild("Scrolling");
+		for (int n = 0; n < 50; n++)
+			ImGui::Text("%04d: Some text", n);
+		ImGui::EndChild();
+		ImGui::End();
 
 		// Process input
 		processInput(window);
@@ -232,6 +234,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 float nextGenerationTime = 0.0f;
+float nextMouseToggleTime = 0.0f;
 void processInput(GLFWwindow* window)
 {
 	// Window close input
@@ -256,6 +259,14 @@ void processInput(GLFWwindow* window)
 	{
 		nextGenerationTime = glfwGetTime() + 0.5f;
 		showTunnelMeshes = not showTunnelMeshes;
+	}		
+	
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && glfwGetTime() >= nextMouseToggleTime)
+	{
+		nextMouseToggleTime = glfwGetTime() + 0.1f;
+
+		mouseInputEnabled = not mouseInputEnabled;
+		glfwSetInputMode(window, GLFW_CURSOR, mouseInputEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 	}	
 
 	// Camera input
@@ -274,6 +285,12 @@ void processInput(GLFWwindow* window)
 bool firstMouse = true;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	// pass mouse positions to imgui
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(xpos, ypos);
+
+	if (!mouseInputEnabled) return;
+
 	// prevents snapping when first entering window
 	if (firstMouse)
 	{
@@ -293,6 +310,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+	if (!mouseInputEnabled) return;
+
 	// adjust fov on scroll
 	viewCamera.setFOV(viewCamera.getFOV() + -2.0f * (float)yoffset);
 }

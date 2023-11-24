@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\louie\Desktop\University\Honours Project\uni-honours-project\3DProceduralCaves\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\louie\Desktop\University\Honours Project\uni-honours-project\3DProceduralCaves\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\louie\Desktop\University\uni-honours-project\3DProceduralCaves\includes;C:\Users\louie\Desktop\University\Honours Project\uni-honours-project\3DProceduralCaves\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\louie\Desktop\University\uni-honours-project\3DProceduralCaves\lib;C:\Users\louie\Desktop\University\Honours Project\uni-honours-project\3DProceduralCaves\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
