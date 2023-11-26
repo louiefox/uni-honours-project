@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <array>
 
 #include "stb_image.h"
 #include "imgui/imgui.h"
@@ -34,13 +35,14 @@ bool mouseInputEnabled = true;
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 CaveGenerator caveGenerator = CaveGenerator();
-bool showTunnelMeshes = true;
+int proceduralStage = 2;
 
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+void drawImGuiWindow();
 
 void rotateByDegrees(glm::mat4& model, const glm::vec3& rotation)
 {
@@ -130,34 +132,11 @@ int main()
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 
+		// Poll glfw events
 		glfwPollEvents();
 
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		// Create a window example
-		ImGui::Begin("Program Parameters", NULL, ImGuiWindowFlags_MenuBar);
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("Options"))
-			{
-				if (ImGui::MenuItem("Option 1", "Ctrl+O")) { }
-				if (ImGui::MenuItem("Option 2", "Ctrl+1")) { }
-				if (ImGui::MenuItem("Option 3", "Ctrl+2")) { }
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
-
-		// Display contents in a scrolling region
-		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
-		ImGui::BeginChild("Scrolling");
-		for (int n = 0; n < 50; n++)
-			ImGui::Text("%04d: Some text", n);
-		ImGui::EndChild();
-		ImGui::End();
+		// Draw imgui window
+		drawImGuiWindow();
 
 		// Process input
 		processInput(window);
@@ -181,7 +160,7 @@ int main()
 		shaderProgram.setMat4("projection", projection);
 
 		// Draw planes
-		if (showTunnelMeshes)
+		if (proceduralStage >= 2)
 		{
 			for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
 			{
@@ -195,13 +174,16 @@ int main()
 		}
 		
 		// Draw lines
-		lineShaderProgram.use();
-		lineShaderProgram.setMat4("view", view);
-		lineShaderProgram.setMat4("projection", projection);
-
-		for (Line* line : caveGenerator.drawLines)
+		if (proceduralStage >= 1)
 		{
-			line->Draw();
+			lineShaderProgram.use();
+			lineShaderProgram.setMat4("view", view);
+			lineShaderProgram.setMat4("projection", projection);
+
+			for (Line* line : caveGenerator.drawLines)
+			{
+				line->Draw();
+			}
 		}
 
 		// ImGui render
@@ -233,7 +215,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height); // Set viewport with new size again
 }
 
-float nextGenerationTime = 0.0f;
+bool shouldResetMousePos = true;
 float nextMouseToggleTime = 0.0f;
 void processInput(GLFWwindow* window)
 {
@@ -249,23 +231,17 @@ void processInput(GLFWwindow* window)
 	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	
-	// Cave generation testing
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && glfwGetTime() >= nextGenerationTime)
-	{
-		nextGenerationTime = glfwGetTime() + 0.5f;
-		caveGenerator.Generate();
-	}		
-	else if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS && glfwGetTime() >= nextGenerationTime)
-	{
-		nextGenerationTime = glfwGetTime() + 0.5f;
-		showTunnelMeshes = not showTunnelMeshes;
-	}		
-	
+	// Mouse focus toggle
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && glfwGetTime() >= nextMouseToggleTime)
 	{
-		nextMouseToggleTime = glfwGetTime() + 0.1f;
+		nextMouseToggleTime = glfwGetTime() + 0.5f;
 
 		mouseInputEnabled = not mouseInputEnabled;
+
+		// reset mouse position if toggling mouse off
+		if (not mouseInputEnabled)
+			shouldResetMousePos = true;
+
 		glfwSetInputMode(window, GLFW_CURSOR, mouseInputEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 	}	
 
@@ -282,7 +258,6 @@ void processInput(GLFWwindow* window)
 		viewCamera.applyKeyboardInput(RIGHT, -cameraSpeed);
 }
 
-bool firstMouse = true;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	// pass mouse positions to imgui
@@ -292,11 +267,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	if (!mouseInputEnabled) return;
 
 	// prevents snapping when first entering window
-	if (firstMouse)
+	if (shouldResetMousePos)
 	{
 		lastX = xpos;
 		lastY = ypos;
-		firstMouse = false;
+		shouldResetMousePos = false;
 	}
 
 	// find offsets since last mouse move
@@ -314,4 +289,67 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 	// adjust fov on scroll
 	viewCamera.setFOV(viewCamera.getFOV() + -2.0f * (float)yoffset);
+}
+
+void switchProceduralLevel(int newLevel)
+{
+	proceduralStage = newLevel;
+}
+
+std::array<std::string, 4> proceduralLevelNames = {
+	"Nothing",
+	"LSystem",
+	"Meshes",
+	"Perlin Noise"
+};
+
+float floatParam = 0.0f;
+bool boolParam = false;
+void drawImGuiWindow()
+{
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	// Begin window
+	ImGui::Begin("Program Parameters", NULL, ImGuiWindowFlags_MenuBar);
+
+	// Begin menu bar
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Options"))
+		{
+			if (ImGui::MenuItem("Option 1", "Ctrl+O")) {}
+			if (ImGui::MenuItem("Option 2", "Ctrl+1")) {}
+			if (ImGui::MenuItem("Option 3", "Ctrl+2")) {}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	// Procedural levels
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Procedural levels:");
+
+	for (int i = 0; i < proceduralLevelNames.size(); i++)
+	{
+		std::string buttonText = std::to_string(i) + " - " + proceduralLevelNames[i] + (proceduralStage == i ? " (Current)" : "");
+		if (ImGui::Button(buttonText.c_str()))
+			switchProceduralLevel(i);
+	}
+
+	// Generation parameters
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Generation paramaters:");
+
+	ImGui::Checkbox("Checkbox", &boolParam);
+	ImGui::SliderFloat("Slider", &floatParam, 0.0f, 1.0f);
+
+	if (ImGui::Button("Generate"))
+		caveGenerator.Generate();
+
+	// Key hint
+	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Press [Alt] to show cursor.");
+
+	// End window
+	ImGui::End();
 }
