@@ -222,14 +222,6 @@ void processInput(GLFWwindow* window)
 	// Window close input
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
-	// Testing polygon render modes - add keys to switch between smooth/flat shading
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	
 	// Mouse focus toggle
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && glfwGetTime() >= nextMouseToggleTime)
@@ -346,6 +338,18 @@ void drawImGuiWindow()
 
 	if (ImGui::Button("Generate"))
 		caveGenerator.Generate();
+
+	// Render modes
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Polygon render modes:");
+
+	if (ImGui::Button("0 - Fill"))
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	
+	
+	if (ImGui::Button("1 - Line"))
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	
+	
+	if (ImGui::Button("2 - Point"))
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
 	// Key hint
 	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Press [Alt] to show cursor.");
