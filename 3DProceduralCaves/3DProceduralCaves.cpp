@@ -162,7 +162,17 @@ int main()
 		// Draw planes
 		if (proceduralStage >= 2)
 		{
-			for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
+			/*for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
+			{
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, tunnelMesh->GetPosition());
+				model = glm::scale(model, tunnelMesh->GetScale());
+				rotateByDegrees(model, tunnelMesh->GetRotation());
+
+				tunnelMesh->Draw(shaderProgram, model);
+			}*/			
+			
+			for (TunnelIntersectionMesh* tunnelMesh : caveGenerator.tunnelIntersectionMeshes)
 			{
 				glm::mat4 model = glm::mat4(1.0f);
 				model = glm::translate(model, tunnelMesh->GetPosition());
@@ -334,7 +344,7 @@ void drawImGuiWindow()
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Generation paramaters:");
 
 	ImGui::Checkbox("Checkbox", &boolParam);
-	ImGui::SliderFloat("Slider", &floatParam, 0.0f, 1.0f);
+	ImGui::SliderFloat("Slider", &floatParam, 0.0f, 100.0f);
 
 	if (ImGui::Button("Generate"))
 		caveGenerator.Generate();

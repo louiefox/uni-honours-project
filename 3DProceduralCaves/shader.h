@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h> // include glad to get all the required OpenGL headers
+#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
 #include <fstream>

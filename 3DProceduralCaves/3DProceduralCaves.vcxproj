@@ -141,6 +141,7 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="tunnel_intersection_mesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+
 #include "plane.h"
 #include "game_object.h"
 
@@ -10,10 +11,7 @@ public:
 	int SideSquareCount = 16;
 	std::array<Plane, 4> Sides = {Plane(SideSquareCount), Plane(SideSquareCount), Plane(SideSquareCount), Plane(SideSquareCount)};
 
-	TunnelMesh()
-	{
-
-	}
+	TunnelMesh() { }
 
 	void Draw(Shader& shaderProgram, glm::mat4& modelMat)
 	{
