@@ -143,6 +143,11 @@ public:
 		}
 	}
 
+	void SetAdjustAngle(float newAdjustAngle)
+	{
+		adjustAngle = newAdjustAngle;
+	}
+
 private:
 	std::string CurrentString = "X";
 	float lineLength = 1.0f;

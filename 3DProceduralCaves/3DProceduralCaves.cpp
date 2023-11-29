@@ -305,7 +305,7 @@ std::array<std::string, 4> proceduralLevelNames = {
 	"Perlin Noise"
 };
 
-float floatParam = 0.0f;
+float floatParam = 45.0f;
 bool boolParam = false;
 void drawImGuiWindow()
 {
@@ -343,8 +343,10 @@ void drawImGuiWindow()
 	// Generation parameters
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Generation paramaters:");
 
-	ImGui::Checkbox("Checkbox", &boolParam);
-	ImGui::SliderFloat("Slider", &floatParam, 0.0f, 100.0f);
+	//ImGui::Checkbox("Checkbox", &boolParam);
+	
+	if (ImGui::SliderFloat("Branch Angle", &floatParam, 0.0f, 90.0f))
+		caveGenerator.SetAdjustAngle(floatParam);
 
 	if (ImGui::Button("Regenerate Current"))
 		caveGenerator.ReGenerateCurrent();	
