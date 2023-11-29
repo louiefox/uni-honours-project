@@ -37,7 +37,7 @@ public:
 			delete mesh;
 	}
 
-	void Generate()
+	void GenerateNext()
 	{
 		std::string nextString = "";
 		for (int i = 0; i < CurrentString.length(); i++)
@@ -59,6 +59,14 @@ public:
 		CurrentString = nextString;
 
 		currentIteration++;
+		std::cout << "Iteration " << currentIteration << std::endl;
+		std::cout << CurrentString << std::endl;
+
+		UpdateDraw();
+	}	
+	
+	void ReGenerateCurrent()
+	{
 		std::cout << "Iteration " << currentIteration << std::endl;
 		std::cout << CurrentString << std::endl;
 
@@ -86,6 +94,8 @@ public:
 		std::vector<LSystemValue> valueStack;
 		for (int i = 0; i < CurrentString.length(); i++)
 		{
+			char previousCharacter = i > 0 ? CurrentString[i - 1] : ' ';
+			char nextCharacter = (i + 1) < CurrentString.length() ? CurrentString[i + 1] : ' ';
 			switch (CurrentString[i])
 			{
 				case 'F':
@@ -95,19 +105,22 @@ public:
 					// create new line mesh, swap x/y around and invert z so tree is facing forward
 					drawLines.push_back(new Line(glm::vec3(currentValue.Position.y, 0.0f, -currentValue.Position.x), glm::vec3(endPos.y, 0.0f, -endPos.x)));
 
-					//TunnelMesh* tunnelPiece = new TunnelMesh();
-					//tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (endPos.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-endPos.x - -currentValue.Position.x) / 2));
-					//tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
-
-					//tunnelMeshes.push_back(tunnelPiece);
-
-					if (i == 1)
+					// place tunnel building blocks
+					if (nextCharacter == '[') // place intersection if start of branch
 					{
 						TunnelIntersectionMesh* tunnelPiece = new TunnelIntersectionMesh(adjustAngle);
 						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (endPos.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-endPos.x - -currentValue.Position.x) / 2));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
 						tunnelIntersectionMeshes.push_back(tunnelPiece);
+					}
+					else if(previousCharacter != '-' && previousCharacter != '+') // place normal tunnel if not intersection
+					{
+						TunnelMesh* tunnelPiece = new TunnelMesh();
+						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (endPos.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-endPos.x - -currentValue.Position.x) / 2));
+						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
+
+						tunnelMeshes.push_back(tunnelPiece);
 					}
 
 					currentValue.Position = endPos;

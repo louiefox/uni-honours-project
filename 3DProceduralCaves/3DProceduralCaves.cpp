@@ -119,7 +119,7 @@ int main()
 	lineShaderProgram.use();
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
-	caveGenerator.Generate();
+	caveGenerator.GenerateNext();
 
 	// --------------------------------------
 	// RENDER LOOP
@@ -162,7 +162,7 @@ int main()
 		// Draw planes
 		if (proceduralStage >= 2)
 		{
-			/*for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
+			for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
 			{
 				glm::mat4 model = glm::mat4(1.0f);
 				model = glm::translate(model, tunnelMesh->GetPosition());
@@ -170,7 +170,7 @@ int main()
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
 				tunnelMesh->Draw(shaderProgram, model);
-			}*/			
+			}			
 			
 			for (TunnelIntersectionMesh* tunnelMesh : caveGenerator.tunnelIntersectionMeshes)
 			{
@@ -346,8 +346,11 @@ void drawImGuiWindow()
 	ImGui::Checkbox("Checkbox", &boolParam);
 	ImGui::SliderFloat("Slider", &floatParam, 0.0f, 100.0f);
 
-	if (ImGui::Button("Generate"))
-		caveGenerator.Generate();
+	if (ImGui::Button("Regenerate Current"))
+		caveGenerator.ReGenerateCurrent();	
+	
+	if (ImGui::Button("Generate Next"))
+		caveGenerator.GenerateNext();
 
 	// Render modes
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Polygon render modes:");
