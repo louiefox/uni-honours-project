@@ -12,16 +12,16 @@ class TunnelIntersectionMesh : public GameObject
 public:
 	TunnelIntersectionMesh(float angle) 
 	{
-		mesh = Mesh();
+		mMesh = Mesh();
 
-		mesh.AddVertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)); // top left
-		mesh.AddVertex(glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)); // top right
-		mesh.AddVertex(glm::vec3(0.5, 0.5, 0.0), glm::vec2(1.0, 1.0)); // bottom right
-		mesh.AddVertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)); // top left
-		mesh.AddVertex(glm::vec3(0.5, 0.5, 0.0), glm::vec2(1.0, 1.0)); // bottom right
-		mesh.AddVertex(glm::vec3(-0.5, 0.5, 0.0), glm::vec2(0.0, 1.0)); // bottom left
+		mMesh.addVertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)); // top left
+		mMesh.addVertex(glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)); // top right
+		mMesh.addVertex(glm::vec3(0.5, 0.5, 0.0), glm::vec2(1.0, 1.0)); // bottom right
+		mMesh.addVertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)); // top left
+		mMesh.addVertex(glm::vec3(0.5, 0.5, 0.0), glm::vec2(1.0, 1.0)); // bottom right
+		mMesh.addVertex(glm::vec3(-0.5, 0.5, 0.0), glm::vec2(0.0, 1.0)); // bottom left
 
-		mesh.Generate();
+		mMesh.generate();
 	}	
 
 	~TunnelIntersectionMesh()
@@ -29,11 +29,11 @@ public:
 
 	}
 
-	void Draw()
+	void draw()
 	{
-		mesh.Draw();
+		mMesh.draw();
 	}
 
 private:
-	Mesh mesh;
+	Mesh mMesh;
 };

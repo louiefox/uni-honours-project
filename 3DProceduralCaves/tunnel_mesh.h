@@ -13,7 +13,7 @@ public:
 
 	TunnelMesh() { }
 
-	void Draw(Shader& shaderProgram, glm::mat4& modelMat)
+	void draw(Shader& shaderProgram, glm::mat4& modelMat)
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -22,7 +22,7 @@ public:
 			sideModelMat = glm::rotate(sideModelMat, glm::radians(90.0f), glm::vec3(i % 2 == 0 ? 1.0 : 0.0, i % 2 != 0 ? 1.0 : 0.0, 0.0));
 
 			shaderProgram.setMat4("model", sideModelMat);
-			Sides[i].Draw();
+			Sides[i].draw();
 		}
 	}
 

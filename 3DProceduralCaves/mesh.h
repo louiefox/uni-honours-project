@@ -13,10 +13,6 @@ struct Vertex
 class Mesh
 {
 public:
-	unsigned int VBO, VAO, EBO;
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indicies;
-
 	Mesh()
 	{
 
@@ -24,38 +20,38 @@ public:
 
 	~Mesh()
 	{
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);
+		glDeleteVertexArrays(1, &mVAO);
+		glDeleteBuffers(1, &mVBO);
+		glDeleteBuffers(1, &mEBO);
 	}
 
-	void AddVertex(const glm::vec3& position, const glm::vec2 uvCoords)
+	void addVertex(const glm::vec3& position, const glm::vec2 uvCoords)
 	{
-		vertices.push_back(Vertex{ position, uvCoords });
-		indicies.push_back(vertices.size() - 1);
+		mVertices.push_back(Vertex{ position, uvCoords });
+		mIndicies.push_back(mVertices.size() - 1);
 	}
 
-	void Generate()
+	void generate()
 	{
-		if (generated)
+		if (mGenerated)
 			return;
 
-		generated = true;
+		mGenerated = true;
 
 		// Create objects
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);
+		glGenVertexArrays(1, &mVAO);
+		glGenBuffers(1, &mVBO);
+		glGenBuffers(1, &mEBO);
 
-		glBindVertexArray(VAO); // bind VAO before vertex buffers and attributes
+		glBindVertexArray(mVAO); // bind VAO before vertex buffers and attributes
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind vertex buffer
+		glBindBuffer(GL_ARRAY_BUFFER, mVBO); // bind vertex buffer
 
 		// pass address for first Vertex struct in vertices, they're sequential so the stride/offsets will function normally
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW); // GL_STATIC_DRAW means data will not change, GL_DYNAMIC_DRAW would store the vertices in faster memory so the data can be changed frequenetly
+		glBufferData(GL_ARRAY_BUFFER, mVertices.size() * sizeof(Vertex), &mVertices[0], GL_STATIC_DRAW); // GL_STATIC_DRAW means data will not change, GL_DYNAMIC_DRAW would store the vertices in faster memory so the data can be changed frequenetly
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(unsigned int), &indicies[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicies.size() * sizeof(unsigned int), &mIndicies[0], GL_STATIC_DRAW);
 
 		// position attribute
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0); // attrib index, attrib size, attrib type, false, stride, offset
@@ -72,13 +68,17 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void Draw()
+	void draw()
 	{
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, indicies.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(mVAO);
+		glDrawElements(GL_TRIANGLES, mIndicies.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 
 private:
-	bool generated = false;
+	unsigned int mVBO, mVAO, mEBO;
+	std::vector<Vertex> mVertices;
+	std::vector<unsigned int> mIndicies;
+
+	bool mGenerated = false;
 };

@@ -169,7 +169,7 @@ int main()
 				model = glm::scale(model, tunnelMesh->GetScale());
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
-				tunnelMesh->Draw(shaderProgram, model);
+				tunnelMesh->draw(shaderProgram, model);
 			}			
 			
 			for (TunnelIntersectionMesh* tunnelMesh : caveGenerator.tunnelIntersectionMeshes)
@@ -180,7 +180,7 @@ int main()
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
 				shaderProgram.setMat4("model", model);
-				tunnelMesh->Draw();
+				tunnelMesh->draw();
 			}
 		}
 		

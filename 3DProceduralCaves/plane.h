@@ -10,7 +10,7 @@ class Plane
 public:
 	Plane(unsigned int squaresCount)
 	{
-		mesh = Mesh();
+		mMesh = Mesh();
 
 		unsigned int planeSquaresWidth = std::sqrt(squaresCount);
 		float individualSquareSize = 1.0f / (float)planeSquaresWidth;
@@ -22,18 +22,18 @@ public:
 
 				// TODO: Don't repeat vertices, also don't push indicies like this
 				// tri 1
-				mesh.AddVertex(topLeft, glm::vec2(0.0f, 0.0f)); // top left
-				mesh.AddVertex(topLeft + glm::vec3(individualSquareSize, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)); // top right
-				mesh.AddVertex(topLeft + glm::vec3(individualSquareSize, individualSquareSize, 0.0f), glm::vec2(1.0f, 1.0f)); // bottom right			
+				mMesh.addVertex(topLeft, glm::vec2(0.0f, 0.0f)); // top left
+				mMesh.addVertex(topLeft + glm::vec3(individualSquareSize, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)); // top right
+				mMesh.addVertex(topLeft + glm::vec3(individualSquareSize, individualSquareSize, 0.0f), glm::vec2(1.0f, 1.0f)); // bottom right			
 				
 				// tri 2
-				mesh.AddVertex(topLeft + glm::vec3(individualSquareSize, individualSquareSize, 0.0f), glm::vec2(1.0f, 1.0f)); // bottom right			
-				mesh.AddVertex(topLeft + glm::vec3(0.0f, individualSquareSize, 0.0f), glm::vec2(0.0f, 1.0f)); // bottom left			
-				mesh.AddVertex(topLeft, glm::vec2(0.0f, 0.0f)); // top left
+				mMesh.addVertex(topLeft + glm::vec3(individualSquareSize, individualSquareSize, 0.0f), glm::vec2(1.0f, 1.0f)); // bottom right			
+				mMesh.addVertex(topLeft + glm::vec3(0.0f, individualSquareSize, 0.0f), glm::vec2(0.0f, 1.0f)); // bottom left			
+				mMesh.addVertex(topLeft, glm::vec2(0.0f, 0.0f)); // top left
 			}
 		}
 
-		mesh.Generate();
+		mMesh.generate();
 	}
 
 	~Plane()
@@ -41,11 +41,11 @@ public:
 
 	}
 
-	void Draw()
+	void draw()
 	{
-		mesh.Draw();
+		mMesh.draw();
 	}
 
 private:
-	Mesh mesh;
+	Mesh mMesh;
 };
