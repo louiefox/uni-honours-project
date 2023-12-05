@@ -179,7 +179,8 @@ int main()
 				model = glm::scale(model, tunnelMesh->GetScale());
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
-				tunnelMesh->Draw(shaderProgram, model);
+				shaderProgram.setMat4("model", model);
+				tunnelMesh->Draw();
 			}
 		}
 		
