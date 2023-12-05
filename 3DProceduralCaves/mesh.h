@@ -3,7 +3,12 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include "plane.h"
+
+struct Vertex
+{
+	glm::vec3 Position;
+	glm::vec2 TextureCoords;
+};
 
 class Mesh
 {
