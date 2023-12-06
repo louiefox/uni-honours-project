@@ -120,6 +120,7 @@ int main()
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
 	caveGenerator.GenerateNext();
+	caveGenerator.GenerateNext();
 
 	// --------------------------------------
 	// RENDER LOOP

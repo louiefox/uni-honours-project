@@ -100,16 +100,16 @@ public:
 			{
 				case 'F':
 				{
-					glm::vec2 endPos = getLineEndPos(currentValue.Position, glm::radians(currentValue.Rotation));
+					const glm::vec2 LINE_END_POS = getLineEndPos(currentValue.Position, glm::radians(currentValue.Rotation));
 
 					// create new line mesh, swap x/y around and invert z so tree is facing forward
-					drawLines.push_back(new Line(glm::vec3(currentValue.Position.y, 0.0f, -currentValue.Position.x), glm::vec3(endPos.y, 0.0f, -endPos.x)));
+					drawLines.push_back(new Line(glm::vec3(currentValue.Position.y, 0.0f, -currentValue.Position.x), glm::vec3(LINE_END_POS.y, 0.0f, -LINE_END_POS.x)));
 
 					// place tunnel building blocks
 					if (nextCharacter == '[') // place intersection if start of branch
 					{
 						TunnelIntersectionMesh* tunnelPiece = new TunnelIntersectionMesh(adjustAngle);
-						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (endPos.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-endPos.x - -currentValue.Position.x) / 2));
+						tunnelPiece->SetPosition(glm::vec3(LINE_END_POS.y, 0.0f, -LINE_END_POS.x));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
 						tunnelIntersectionMeshes.push_back(tunnelPiece);
@@ -117,13 +117,13 @@ public:
 					else if(previousCharacter != '-' && previousCharacter != '+') // place normal tunnel if not intersection
 					{
 						TunnelMesh* tunnelPiece = new TunnelMesh();
-						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (endPos.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-endPos.x - -currentValue.Position.x) / 2));
+						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (LINE_END_POS.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-LINE_END_POS.x - -currentValue.Position.x) / 2));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
 						tunnelMeshes.push_back(tunnelPiece);
 					}
 
-					currentValue.Position = endPos;
+					currentValue.Position = LINE_END_POS;
 					break;
 				}
 				case '-':
