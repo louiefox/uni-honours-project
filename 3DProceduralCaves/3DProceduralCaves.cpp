@@ -17,7 +17,6 @@
 #include "texture.h"
 #include "tunnel_mesh.h"
 #include "game_object.h"
-#include "plane.h"
 #include "line.h"
 #include "cave_generator.h"
 
@@ -170,7 +169,8 @@ int main()
 				model = glm::scale(model, tunnelMesh->GetScale());
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
-				tunnelMesh->draw(shaderProgram, model);
+				shaderProgram.setMat4("model", model);
+				tunnelMesh->draw();
 			}			
 			
 			for (TunnelIntersectionMesh* tunnelMesh : caveGenerator.tunnelIntersectionMeshes)

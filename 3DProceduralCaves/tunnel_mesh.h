@@ -2,29 +2,71 @@
 
 #include <array>
 
-#include "plane.h"
 #include "game_object.h"
 
 class TunnelMesh : public GameObject
 {
 public:
-	int SideSquareCount = 16;
-	std::array<Plane, 4> Sides = {Plane(SideSquareCount), Plane(SideSquareCount), Plane(SideSquareCount), Plane(SideSquareCount)};
+	TunnelMesh() 
+	{ 
+		mMesh = Mesh();
 
-	TunnelMesh() { }
+		// floor
+		createQuad(
+			glm::vec3(-0.5, -0.5, -0.5),
+			glm::vec3(0.5, -0.5, -0.5),
+			glm::vec3(-0.5, -0.5, 0.5),
+			glm::vec3(0.5, -0.5, 0.5)
+		);		
+		
+		// ceiling
+		createQuad(
+			glm::vec3(-0.5, 0.5, -0.5),
+			glm::vec3(0.5, 0.5, -0.5),
+			glm::vec3(-0.5, 0.5, 0.5),
+			glm::vec3(0.5, 0.5, 0.5)
+		);		
+		
+		// left wall
+		createQuad(
+			glm::vec3(-0.5, 0.5, 0.5),
+			glm::vec3(-0.5, 0.5, -0.5),
+			glm::vec3(-0.5, -0.5, 0.5),
+			glm::vec3(-0.5, -0.5, -0.5)
+		);		
+		
+		// right wall
+		createQuad(
+			glm::vec3(0.5, 0.5, 0.5),
+			glm::vec3(0.5, 0.5, -0.5),
+			glm::vec3(0.5, -0.5, 0.5),
+			glm::vec3(0.5, -0.5, -0.5)
+		);
 
-	void draw(Shader& shaderProgram, glm::mat4& modelMat)
+		mMesh.generate();
+	}	
+	
+	~TunnelMesh()
+	{ 
+
+	}
+
+	void draw()
 	{
-		for (int i = 0; i < 4; i++)
-		{
-			glm::mat4 sideModelMat = modelMat;
-			sideModelMat = glm::translate(sideModelMat, glm::vec3(i == 1 ? 0.5 : i == 3 ? -0.5 : 0.0, i == 0 ? 0.5 : i == 2 ? -0.5 : 0.0, 0.0));
-			sideModelMat = glm::rotate(sideModelMat, glm::radians(90.0f), glm::vec3(i % 2 == 0 ? 1.0 : 0.0, i % 2 != 0 ? 1.0 : 0.0, 0.0));
-
-			shaderProgram.setMat4("model", sideModelMat);
-			Sides[i].draw();
-		}
+		mMesh.draw();
 	}
 
 private:
+	Mesh mMesh;
+
+	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight)
+	{
+		mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
+		mMesh.addVertex(topRight, glm::vec2(1.0, 0.0)); // top right
+		mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
+
+		mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
+		mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
+		mMesh.addVertex(bottomLeft, glm::vec2(0.0, 1.0)); // bottom left	
+	}
 };
