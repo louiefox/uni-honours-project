@@ -48,9 +48,9 @@ public:
 					nextString += "FF[-FX][+FX]";
 					//nextString += "F+[[X]-X]-F[-FX]+X";
 					break;				
-				/*case 'F':
+				case 'F':
 					nextString += "FF";
-					break;*/
+					break;
 				default:
 					nextString += CurrentString[i];
 			}
