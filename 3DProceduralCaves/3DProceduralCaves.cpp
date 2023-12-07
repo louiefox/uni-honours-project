@@ -298,6 +298,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 void switchProceduralLevel(int newLevel)
 {
 	proceduralStage = newLevel;
+
+	caveGenerator.tempDevEnablePerlin = proceduralStage == 3;
+	caveGenerator.ReGenerateCurrent();
 }
 
 std::array<std::string, 4> proceduralLevelNames = {

@@ -7,7 +7,7 @@
 class TunnelMesh : public GameObject
 {
 public:
-	TunnelMesh() 
+	TunnelMesh(bool tempDevEnablePerlin)
 	{ 
 		mMesh = Mesh();
 
@@ -17,7 +17,7 @@ public:
 			glm::vec3(0.5, -0.5, -0.5),
 			glm::vec3(-0.5, -0.5, 0.5),
 			glm::vec3(0.5, -0.5, 0.5),
-			false
+			not tempDevEnablePerlin
 		);		
 		
 		// ceiling

@@ -19,6 +19,7 @@ public:
 	std::vector<TunnelMesh*> tunnelMeshes;
 	std::vector<TunnelIntersectionMesh*> tunnelIntersectionMeshes;
 	int currentIteration = 0;
+	bool tempDevEnablePerlin = false;
 
 	CaveGenerator()
 	{
@@ -116,7 +117,7 @@ public:
 					}
 					else if(previousCharacter != '-' && previousCharacter != '+') // place normal tunnel if not intersection
 					{
-						TunnelMesh* tunnelPiece = new TunnelMesh();
+						TunnelMesh* tunnelPiece = new TunnelMesh(tempDevEnablePerlin);
 						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (LINE_END_POS.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-LINE_END_POS.x - -currentValue.Position.x) / 2));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
