@@ -251,7 +251,7 @@ void processInput(GLFWwindow* window)
 
 	// Camera input
 	const bool isShiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
-	const float cameraSpeed = static_cast<float>((isShiftPressed ? 20.0f : 5.0f) * deltaTime); // adjust accordingly
+	const float cameraSpeed = static_cast<float>((isShiftPressed ? 5.0f : 1.0f) * deltaTime); // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		viewCamera.applyKeyboardInput(FORWARD, cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

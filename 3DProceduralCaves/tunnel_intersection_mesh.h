@@ -5,7 +5,6 @@
 
 #include "mesh.h"
 #include "game_object.h"
-#include "shader.h"
 
 class TunnelIntersectionMesh : public GameObject
 {

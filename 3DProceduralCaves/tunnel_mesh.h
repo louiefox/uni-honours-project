@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include "mesh.h"
 #include "game_object.h"
 
 class TunnelMesh : public GameObject

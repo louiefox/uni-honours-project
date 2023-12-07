@@ -59,9 +59,6 @@
     <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="plane.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="line.h">
       <Filter>Header Files</Filter>
     </ClInclude>

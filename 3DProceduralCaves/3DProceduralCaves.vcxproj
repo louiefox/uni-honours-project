@@ -158,7 +158,6 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="line.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="plane.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.h" />
