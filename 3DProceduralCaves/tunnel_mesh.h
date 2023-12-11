@@ -1,5 +1,9 @@
 #pragma once
 
+#include <algorithm>
+#include <vector>
+#include <map>
+	
 #include "mesh.h"
 #include "game_object.h"
 #include "PerlinNoise.hpp"
@@ -43,6 +47,9 @@ public:
 			glm::vec3(0.5, -0.5, -0.5)
 		);
 
+		// Blur geometry
+		applyGeometryBlurring();
+
 		mMesh.generate();
 	}	
 	
@@ -85,7 +92,7 @@ private:
 		currentVertices.push_back({ bottomLeft, glm::vec2(0.0, 1.0) }); // bottom left	
 
 		// Start splitting
-		for (int split = 0; split < 4; split++)
+		for (int split = 0; split < 3; split++)
 		{
 			// Loop through existing triangles
 			std::vector<Vertex> newVertices;
@@ -156,5 +163,47 @@ private:
 		newVertices.push_back({ vertex3, glm::vec2(1.0, 1.0) });
 
 		return newVertices;
+	}
+
+	void applyGeometryBlurring()
+	{
+		const std::vector<Vertex>& currentVertices = mMesh.getVertices();
+
+		std::vector<Vertex> newVertices;
+		for (const Vertex& vertex : currentVertices)
+		{
+			std::vector<std::tuple<int, float>> nearestVertices;
+			std::map<float, bool> addedVertices;
+			for (int i = 0; i < currentVertices.size(); i++)
+			{
+				const Vertex& otherVertex = currentVertices[i];
+
+				float distance = glm::distance(vertex.Position, otherVertex.Position);
+
+				// don't add vertex if same position or already added as nearby
+				if (otherVertex.Position == vertex.Position || addedVertices.contains(distance))
+					continue;
+
+				addedVertices[distance] = true;
+
+				nearestVertices.push_back(std::make_tuple(i, distance));
+			}
+
+			std::sort(nearestVertices.begin(), nearestVertices.end(), [](std::tuple<int, float>& a, std::tuple<int, float>& b) {
+				return std::get<1>(a) < std::get<1>(b); 
+			});
+			
+			// TODO: Use distance with min/max to make further away vertices matter less
+			glm::vec3 differenceVec = glm::vec3(0.0, 0.0, 0.0);
+			for (int i = 0; i < 8 && i < nearestVertices.size(); i++)
+			{
+				const Vertex& nearVertex = currentVertices[std::get<0>(nearestVertices[i])];
+				differenceVec += nearVertex.Position - vertex.Position;
+			}
+
+			newVertices.push_back({ vertex.Position + differenceVec, vertex.TextureCoords});
+		}
+
+		mMesh.setVertices(newVertices);
 	}
 };

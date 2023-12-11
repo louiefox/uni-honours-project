@@ -25,6 +25,16 @@ public:
 		glDeleteBuffers(1, &mEBO);
 	}
 
+	const std::vector<Vertex>& getVertices()
+	{
+		return mVertices;
+	}	
+	
+	void setVertices(const std::vector<Vertex>& newVertices)
+	{
+		mVertices = newVertices;
+	}
+
 	void addVertex(const glm::vec3& position, const glm::vec2 uvCoords)
 	{
 		mVertices.push_back(Vertex{ position, uvCoords });
