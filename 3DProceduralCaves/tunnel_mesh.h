@@ -16,8 +16,7 @@ public:
 			glm::vec3(-0.5, -0.5, -0.5),
 			glm::vec3(0.5, -0.5, -0.5),
 			glm::vec3(-0.5, -0.5, 0.5),
-			glm::vec3(0.5, -0.5, 0.5),
-			not tempDevEnablePerlin
+			glm::vec3(0.5, -0.5, 0.5)
 		);		
 		
 		// ceiling
@@ -25,8 +24,7 @@ public:
 			glm::vec3(-0.5, 0.5, -0.5),
 			glm::vec3(0.5, 0.5, -0.5),
 			glm::vec3(-0.5, 0.5, 0.5),
-			glm::vec3(0.5, 0.5, 0.5),
-			true
+			glm::vec3(0.5, 0.5, 0.5)
 		);		
 		
 		// left wall
@@ -34,8 +32,7 @@ public:
 			glm::vec3(-0.5, 0.5, 0.5),
 			glm::vec3(-0.5, 0.5, -0.5),
 			glm::vec3(-0.5, -0.5, 0.5),
-			glm::vec3(-0.5, -0.5, -0.5),
-			true
+			glm::vec3(-0.5, -0.5, -0.5)
 		);		
 		
 		// right wall
@@ -43,8 +40,7 @@ public:
 			glm::vec3(0.5, 0.5, 0.5),
 			glm::vec3(0.5, 0.5, -0.5),
 			glm::vec3(0.5, -0.5, 0.5),
-			glm::vec3(0.5, -0.5, -0.5),
-			true
+			glm::vec3(0.5, -0.5, -0.5)
 		);
 
 		mMesh.generate();
@@ -63,9 +59,9 @@ public:
 private:
 	Mesh mMesh;
 
-	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight, bool useOldCode)
+	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight)
 	{
-		if (useOldCode)
+		if (false)
 		{
 			mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
 			mMesh.addVertex(topRight, glm::vec2(1.0, 0.0)); // top right
@@ -89,7 +85,7 @@ private:
 		currentVertices.push_back({ bottomLeft, glm::vec2(0.0, 1.0) }); // bottom left	
 
 		// Start splitting
-		for (int split = 0; split < 5; split++)
+		for (int split = 0; split < 4; split++)
 		{
 			// Loop through existing triangles
 			std::vector<Vertex> newVertices;
@@ -108,60 +104,57 @@ private:
 		}
 
 		// Add new triangles to mesh
-
-		const siv::PerlinNoise::seed_type seed = 123456u;
-		const siv::PerlinNoise perlin{ seed };
-
 		for (int i = 0; i < currentVertices.size(); i++)
 		{
-			glm::vec3 vertexPosition = currentVertices[i].Position;
-
-			// Apply perlin if not edge vertex
-			if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5 && vertexPosition.z > -0.5 && vertexPosition.z < 0.5)
-			{
-				const double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
-				vertexPosition.y = vertexPosition.y - noise * 0.2;
-			}
-
-			mMesh.addVertex(vertexPosition, currentVertices[i].TextureCoords);
+			mMesh.addVertex(currentVertices[i].Position, currentVertices[i].TextureCoords);
 		}
+
+		//const siv::PerlinNoise::seed_type seed = 123456u;
+		//const siv::PerlinNoise perlin{ seed };
+
+		//for (int i = 0; i < currentVertices.size(); i++)
+		//{
+		//	glm::vec3 vertexPosition = currentVertices[i].Position;
+
+		//	// Apply perlin if not edge vertex
+		//	if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5 && vertexPosition.z > -0.5 && vertexPosition.z < 0.5)
+		//	{
+		//		const double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
+		//		vertexPosition.y = vertexPosition.y - noise * 0.2;
+		//	}
+
+		//	mMesh.addVertex(vertexPosition, currentVertices[i].TextureCoords);
+		//}
 	}
 
 	std::vector<Vertex> splitTriangle(glm::vec3 vertex1, glm::vec3 vertex2, glm::vec3 vertex3)
 	{
-		const float yPos = vertex1.y; // TEMP
-
 		std::vector<Vertex> newVertices;
 
-		glm::vec2 midPoint1 = getLineMidPoint(glm::vec2(vertex1.x, vertex1.z), glm::vec2(vertex2.x, vertex2.z));
-		glm::vec2 midPoint2 = getLineMidPoint(glm::vec2(vertex2.x, vertex2.z), glm::vec2(vertex3.x, vertex3.z));
-		glm::vec2 midPoint3 = getLineMidPoint(glm::vec2(vertex3.x, vertex3.z), glm::vec2(vertex1.x, vertex1.z));
+		glm::vec3 midPoint1 = vertex1 + ((vertex2 - vertex1) / 2.0f);
+		glm::vec3 midPoint2 = vertex2 + ((vertex3 - vertex2) / 2.0f);
+		glm::vec3 midPoint3 = vertex3 + ((vertex1 - vertex3) / 2.0f);
 
 		// center
-		newVertices.push_back({ glm::vec3(midPoint1.x, yPos, midPoint1.y), glm::vec2(0.5, 0.0) });
-		newVertices.push_back({ glm::vec3(midPoint2.x, yPos, midPoint2.y), glm::vec2(1.0, 0.5) });
-		newVertices.push_back({ glm::vec3(midPoint3.x, yPos, midPoint3.y), glm::vec2(0.5, 0.5) });
+		newVertices.push_back({ midPoint1, glm::vec2(0.5, 0.0) });
+		newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.5) });
+		newVertices.push_back({ midPoint3, glm::vec2(0.5, 0.5) });
 
 		// vertex1
-		newVertices.push_back({ glm::vec3(vertex1.x, yPos, vertex1.z), glm::vec2(0.0, 0.0) });
-		newVertices.push_back({ glm::vec3(midPoint1.x, yPos, midPoint1.y), glm::vec2(0.5, 0.0) });
-		newVertices.push_back({ glm::vec3(midPoint3.x, yPos, midPoint3.y), glm::vec2(0.5, 0.5) });
+		newVertices.push_back({ vertex1, glm::vec2(0.0, 0.0) });
+		newVertices.push_back({ midPoint1, glm::vec2(0.5, 0.0) });
+		newVertices.push_back({ midPoint3, glm::vec2(0.5, 0.5) });
 
 		// vertex2
-		newVertices.push_back({ glm::vec3(midPoint1.x, yPos, midPoint1.y), glm::vec2(0.5, 0.0) });
-		newVertices.push_back({ glm::vec3(vertex2.x, yPos, vertex2.z), glm::vec2(1.0, 0.0) });
-		newVertices.push_back({ glm::vec3(midPoint2.x, yPos, midPoint2.y), glm::vec2(1.0, 0.5) });
+		newVertices.push_back({ midPoint1, glm::vec2(0.5, 0.0) });
+		newVertices.push_back({ vertex2, glm::vec2(1.0, 0.0) });
+		newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.5) });
 
 		// vertex3
-		newVertices.push_back({ glm::vec3(midPoint3.x, yPos, midPoint3.y), glm::vec2(0.5, 0.5) });
-		newVertices.push_back({ glm::vec3(midPoint2.x, yPos, midPoint2.y), glm::vec2(1.0, 0.5) });
-		newVertices.push_back({ glm::vec3(vertex3.x, yPos, vertex3.z), glm::vec2(1.0, 1.0) });
+		newVertices.push_back({ midPoint3, glm::vec2(0.5, 0.5) });
+		newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.5) });
+		newVertices.push_back({ vertex3, glm::vec2(1.0, 1.0) });
 
 		return newVertices;
-	}
-
-	glm::vec2 getLineMidPoint(const glm::vec2& start, const glm::vec2& end)
-	{
-		return start + ((end - start) / 2.0f);
 	}
 };
