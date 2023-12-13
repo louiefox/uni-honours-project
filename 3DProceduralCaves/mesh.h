@@ -25,7 +25,7 @@ public:
 		glDeleteBuffers(1, &mEBO);
 	}
 
-	const std::vector<Vertex>& getVertices()
+	const std::vector<Vertex>& getVertices() const
 	{
 		return mVertices;
 	}	

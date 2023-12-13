@@ -121,6 +121,13 @@ public:
 						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (LINE_END_POS.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-LINE_END_POS.x - -currentValue.Position.x) / 2));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
+						if (previousCharacter == 'F')
+						{
+							TunnelMesh* previousPiece = tunnelMeshes[tunnelMeshes.size() - 1];
+							tunnelPiece->setPreviousTunnelMesh(previousPiece);
+							previousPiece->setNextTunnelMesh(tunnelPiece);
+						}
+
 						tunnelMeshes.push_back(tunnelPiece);
 					}
 
@@ -142,6 +149,16 @@ public:
 					break;
 			}
 		}
+
+		if (tunnelMeshes.size() > 1)
+		{
+			tunnelMeshes[1]->generate();
+			tunnelMeshes[1]->printTest();
+		}
+
+		// Generate meshes
+		for (TunnelMesh* mesh : tunnelMeshes)
+			mesh->generate();
 	}
 
 	void SetAdjustAngle(float newAdjustAngle)

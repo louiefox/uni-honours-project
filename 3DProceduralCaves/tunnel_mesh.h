@@ -2,11 +2,21 @@
 
 #include <algorithm>
 #include <vector>
-#include <map>
+#include <set>
 	
 #include "mesh.h"
 #include "game_object.h"
 #include "PerlinNoise.hpp"
+
+struct comparableVec3
+{
+	float x, y, z;
+};
+
+bool operator<(const comparableVec3& lhs, const comparableVec3& rhs)
+{
+	return std::make_tuple(lhs.x, lhs.y, lhs.z) < std::make_tuple(rhs.x, rhs.y, rhs.z);
+}
 
 class TunnelMesh : public GameObject
 {
@@ -46,11 +56,6 @@ public:
 			glm::vec3(0.5, -0.5, 0.5),
 			glm::vec3(0.5, -0.5, -0.5)
 		);
-
-		// Blur geometry
-		applyGeometryBlurring();
-
-		mMesh.generate();
 	}	
 	
 	~TunnelMesh()
@@ -58,13 +63,52 @@ public:
 
 	}
 
+	void generate()
+	{
+		applyGeometryBlurring();
+
+		mMesh.generate();
+	}		
+	
+	void printTest()
+	{
+		std::cout << "print test" << std::endl;
+
+		if (mPreviousTunnelMesh != nullptr)
+		{
+			std::cout << "has previous" << std::endl;
+		}		
+		
+		if (mNextTunnelMesh != nullptr)
+		{
+			std::cout << "has next" << std::endl;
+		}
+	}		
+	
 	void draw()
 	{
 		mMesh.draw();
+	}	
+
+	const Mesh& getMesh() const
+	{
+		return mMesh;
 	}
+	
+	void setPreviousTunnelMesh(TunnelMesh* tunnelMesh)
+	{
+		mPreviousTunnelMesh = tunnelMesh;
+	}
+	
+	void setNextTunnelMesh(TunnelMesh* tunnelMesh)
+	{
+		mNextTunnelMesh = tunnelMesh;
+	}	
 
 private:
 	Mesh mMesh;
+	TunnelMesh* mPreviousTunnelMesh = nullptr;
+	TunnelMesh* mNextTunnelMesh = nullptr;
 
 	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight)
 	{
@@ -92,7 +136,7 @@ private:
 		currentVertices.push_back({ bottomLeft, glm::vec2(0.0, 1.0) }); // bottom left	
 
 		// Start splitting
-		for (int split = 0; split < 3; split++)
+		for (int split = 0; split < 2; split++) // THIS
 		{
 			// Loop through existing triangles
 			std::vector<Vertex> newVertices;
@@ -124,9 +168,9 @@ private:
 		//	glm::vec3 vertexPosition = currentVertices[i].Position;
 
 		//	// Apply perlin if not edge vertex
-		//	if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5 && vertexPosition.z > -0.5 && vertexPosition.z < 0.5)
+		//	if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
 		//	{
-		//		const double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
+		//		const double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
 		//		vertexPosition.y = vertexPosition.y - noise * 0.2;
 		//	}
 
@@ -165,27 +209,63 @@ private:
 		return newVertices;
 	}
 
+	void addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, glm::vec3 worldPosition)
+	{
+		for (const Vertex& vertex : vertices)
+		{
+			vector.push_back({ worldPosition + vertex.Position, vertex.TextureCoords });
+		}
+	}
+
 	void applyGeometryBlurring()
 	{
-		const std::vector<Vertex>& currentVertices = mMesh.getVertices();
+		const glm::vec3& worldPosition = GetPosition();
 
+		// vertices to loop through and modify
+		std::vector<Vertex> currentVerticesInWorld;
+		addVerticesToVector(currentVerticesInWorld, mMesh.getVertices(), worldPosition);
+
+		// vertices to look for neighbours in - includes previous/next meshes
+		std::vector<Vertex> searchVertices;
+		addVerticesToVector(searchVertices, mMesh.getVertices(), worldPosition);
+
+		if (mPreviousTunnelMesh != nullptr)
+		{
+			const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getVertices();
+			addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition());
+		}		
+		
+		if (mNextTunnelMesh != nullptr)
+		{
+			const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getVertices();
+			addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition());
+		}
+
+		// loop through current vertices and adjust by neighbours
 		std::vector<Vertex> newVertices;
-		for (const Vertex& vertex : currentVertices)
+		for (const Vertex& vertex : currentVerticesInWorld)
 		{
 			std::vector<std::tuple<int, float>> nearestVertices;
-			std::map<float, bool> addedVertices;
-			for (int i = 0; i < currentVertices.size(); i++)
+			std::set<comparableVec3> addedVertices;
+			for (int i = 0; i < searchVertices.size(); i++)
 			{
-				const Vertex& otherVertex = currentVertices[i];
+				const Vertex& otherVertex = searchVertices[i];
+				comparableVec3 compareVec3 = { otherVertex.Position.x, otherVertex.Position.y, otherVertex.Position.z };
+
+				// don't add vertex if same position
+				if (otherVertex.Position == vertex.Position)
+					continue;				
+				
+				// don't add vertex if already added
+				if (addedVertices.find(compareVec3) != addedVertices.end())
+				{
+					//std::cout << "found same vector" << std::endl;
+					continue;
+				}
+
+				addedVertices.insert(compareVec3);
 
 				float distance = glm::distance(vertex.Position, otherVertex.Position);
-
-				// don't add vertex if same position or already added as nearby
-				if (otherVertex.Position == vertex.Position || addedVertices.contains(distance))
-					continue;
-
-				addedVertices[distance] = true;
-
 				nearestVertices.push_back(std::make_tuple(i, distance));
 			}
 
@@ -197,11 +277,11 @@ private:
 			glm::vec3 differenceVec = glm::vec3(0.0, 0.0, 0.0);
 			for (int i = 0; i < 4 && i < nearestVertices.size(); i++)
 			{
-				const Vertex& nearVertex = currentVertices[std::get<0>(nearestVertices[i])];
+				const Vertex& nearVertex = searchVertices[std::get<0>(nearestVertices[i])];
 				differenceVec += nearVertex.Position - vertex.Position;
 			}
 
-			newVertices.push_back({ vertex.Position + (differenceVec * 0.1f), vertex.TextureCoords });
+			newVertices.push_back({ (vertex.Position - worldPosition) + (differenceVec * 0.1f), vertex.TextureCoords });
 		}
 
 		mMesh.setVertices(newVertices);
