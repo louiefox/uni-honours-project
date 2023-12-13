@@ -195,13 +195,13 @@ private:
 			
 			// TODO: Use distance with min/max to make further away vertices matter less
 			glm::vec3 differenceVec = glm::vec3(0.0, 0.0, 0.0);
-			for (int i = 0; i < 8 && i < nearestVertices.size(); i++)
+			for (int i = 0; i < 4 && i < nearestVertices.size(); i++)
 			{
 				const Vertex& nearVertex = currentVertices[std::get<0>(nearestVertices[i])];
 				differenceVec += nearVertex.Position - vertex.Position;
 			}
 
-			newVertices.push_back({ vertex.Position + differenceVec, vertex.TextureCoords});
+			newVertices.push_back({ vertex.Position + (differenceVec * 0.1f), vertex.TextureCoords });
 		}
 
 		mMesh.setVertices(newVertices);
