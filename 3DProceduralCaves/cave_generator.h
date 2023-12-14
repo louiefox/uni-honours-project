@@ -150,13 +150,10 @@ public:
 			}
 		}
 
-		if (tunnelMeshes.size() > 1)
-		{
-			tunnelMeshes[1]->generate();
-			tunnelMeshes[1]->printTest();
-		}
-
-		// Generate meshes
+		// Generate and blur meshes
+		for (TunnelMesh* mesh : tunnelMeshes)
+			mesh->generateGeometryBlurring();
+		
 		for (TunnelMesh* mesh : tunnelMeshes)
 			mesh->generate();
 	}

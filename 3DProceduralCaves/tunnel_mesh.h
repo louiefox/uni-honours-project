@@ -63,10 +63,14 @@ public:
 
 	}
 
-	void generate()
+	void generateGeometryBlurring()
 	{
 		applyGeometryBlurring();
-
+	}			
+	
+	void generate()
+	{
+		pushBlurredVertices();
 		mMesh.generate();
 	}		
 	
@@ -109,6 +113,8 @@ private:
 	Mesh mMesh;
 	TunnelMesh* mPreviousTunnelMesh = nullptr;
 	TunnelMesh* mNextTunnelMesh = nullptr;
+
+	std::vector<Vertex> mTempBlurredVertices;
 
 	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight)
 	{
@@ -242,7 +248,8 @@ private:
 		}
 
 		// loop through current vertices and adjust by neighbours
-		std::vector<Vertex> newVertices;
+		mTempBlurredVertices.clear();
+
 		for (const Vertex& vertex : currentVerticesInWorld)
 		{
 			std::vector<std::tuple<int, float>> nearestVertices;
@@ -281,9 +288,12 @@ private:
 				differenceVec += nearVertex.Position - vertex.Position;
 			}
 
-			newVertices.push_back({ (vertex.Position - worldPosition) + (differenceVec * 0.1f), vertex.TextureCoords });
+			mTempBlurredVertices.push_back({ (vertex.Position - worldPosition) + (differenceVec * 0.1f), vertex.TextureCoords });
 		}
+	}
 
-		mMesh.setVertices(newVertices);
+	void pushBlurredVertices()
+	{
+		mMesh.setVertices(mTempBlurredVertices);
 	}
 };
