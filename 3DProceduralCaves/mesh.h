@@ -33,6 +33,10 @@ public:
 	void setVertices(const std::vector<Vertex>& newVertices)
 	{
 		mVertices = newVertices;
+
+		mIndicies.clear();
+		for (int i = 0; i < mVertices.size(); i++)
+			mIndicies.push_back(i);
 	}
 
 	void addVertex(const glm::vec3& position, const glm::vec2 uvCoords)

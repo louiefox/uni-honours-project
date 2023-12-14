@@ -13,7 +13,7 @@ struct comparableVec3
 	float x, y, z;
 };
 
-bool operator<(const comparableVec3& lhs, const comparableVec3& rhs)
+inline bool operator<(const comparableVec3& lhs, const comparableVec3& rhs)
 {
 	return std::make_tuple(lhs.x, lhs.y, lhs.z) < std::make_tuple(rhs.x, rhs.y, rhs.z);
 }
@@ -21,6 +21,8 @@ bool operator<(const comparableVec3& lhs, const comparableVec3& rhs)
 class TunnelMesh : public GameObject
 {
 public:
+	TunnelMesh() { }
+
 	TunnelMesh(bool tempDevEnablePerlin)
 	{ 
 		mMesh = Mesh();
@@ -56,37 +58,26 @@ public:
 			glm::vec3(0.5, -0.5, 0.5),
 			glm::vec3(0.5, -0.5, -0.5)
 		);
+
+		// Geometry blurring
+		splitMeshTriangles(2);
 	}	
 	
-	~TunnelMesh()
-	{ 
-
-	}
+	~TunnelMesh() { }
 
 	void generateGeometryBlurring()
 	{
 		applyGeometryBlurring();
 	}			
 	
-	void generate()
+	void pushGeometryBlurring()
 	{
 		pushBlurredVertices();
-		mMesh.generate();
 	}		
 	
-	void printTest()
+	void generate()
 	{
-		std::cout << "print test" << std::endl;
-
-		if (mPreviousTunnelMesh != nullptr)
-		{
-			std::cout << "has previous" << std::endl;
-		}		
-		
-		if (mNextTunnelMesh != nullptr)
-		{
-			std::cout << "has next" << std::endl;
-		}
+		mMesh.generate();
 	}		
 	
 	void draw()
@@ -109,7 +100,7 @@ public:
 		mNextTunnelMesh = tunnelMesh;
 	}	
 
-private:
+protected:
 	Mesh mMesh;
 	TunnelMesh* mPreviousTunnelMesh = nullptr;
 	TunnelMesh* mNextTunnelMesh = nullptr;
@@ -118,53 +109,14 @@ private:
 
 	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight)
 	{
-		if (false)
-		{
-			mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
-			mMesh.addVertex(topRight, glm::vec2(1.0, 0.0)); // top right
-			mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
-
-			mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
-			mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
-			mMesh.addVertex(bottomLeft, glm::vec2(0.0, 1.0)); // bottom left	
-
-			return;
-		}
-
 		// Add default vertices for triangles
-		std::vector<Vertex> currentVertices;
-		currentVertices.push_back({ topLeft, glm::vec2(0.0, 0.0) }); // top left
-		currentVertices.push_back({ topRight, glm::vec2(1.0, 0.0) }); // top right
-		currentVertices.push_back({ bottomRight, glm::vec2(1.0, 1.0) }); // bottom right
+		mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
+		mMesh.addVertex(topRight, glm::vec2(1.0, 0.0)); // top right
+		mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
 
-		currentVertices.push_back({ topLeft, glm::vec2(0.0, 0.0) }); // top left
-		currentVertices.push_back({ bottomRight, glm::vec2(1.0, 1.0) }); // bottom right
-		currentVertices.push_back({ bottomLeft, glm::vec2(0.0, 1.0) }); // bottom left	
-
-		// Start splitting
-		for (int split = 0; split < 2; split++) // THIS
-		{
-			// Loop through existing triangles
-			std::vector<Vertex> newVertices;
-			for (int tri = 0; tri < currentVertices.size(); tri += 3)
-			{
-				// Split triangle and add to new vertices vector
-				std::vector<Vertex> splitVertices = splitTriangle(currentVertices[tri].Position, currentVertices[tri + 1].Position, currentVertices[tri + 2].Position);
-				for (int i = 0; i < splitVertices.size(); i++)
-				{
-					newVertices.push_back(splitVertices[i]);
-				}
-			}
-
-			// Swap out vertices
-			currentVertices = newVertices;
-		}
-
-		// Add new triangles to mesh
-		for (int i = 0; i < currentVertices.size(); i++)
-		{
-			mMesh.addVertex(currentVertices[i].Position, currentVertices[i].TextureCoords);
-		}
+		mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
+		mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
+		mMesh.addVertex(bottomLeft, glm::vec2(0.0, 1.0)); // bottom left	
 
 		//const siv::PerlinNoise::seed_type seed = 123456u;
 		//const siv::PerlinNoise perlin{ seed };
@@ -182,6 +134,30 @@ private:
 
 		//	mMesh.addVertex(vertexPosition, currentVertices[i].TextureCoords);
 		//}
+	}
+
+	void splitMeshTriangles(int timesToSplit)
+	{
+		std::vector<Vertex> currentVertices = mMesh.getVertices();
+		for (int split = 0; split < timesToSplit; split++)
+		{
+			// Loop through existing triangles
+			std::vector<Vertex> newVertices;
+			for (int tri = 0; tri < currentVertices.size(); tri += 3)
+			{
+				// Split triangle and add to new vertices vector
+				std::vector<Vertex> splitVertices = splitTriangle(currentVertices[tri].Position, currentVertices[tri + 1].Position, currentVertices[tri + 2].Position);
+				for (int i = 0; i < splitVertices.size(); i++)
+				{
+					newVertices.push_back(splitVertices[i]);
+				}
+			}
+
+			// Swap out vertices
+			currentVertices = newVertices;
+		}
+
+		mMesh.setVertices(currentVertices);
 	}
 
 	std::vector<Vertex> splitTriangle(glm::vec3 vertex1, glm::vec3 vertex2, glm::vec3 vertex3)
@@ -225,6 +201,7 @@ private:
 
 	void applyGeometryBlurring()
 	{
+		// TODO: Apply rotation to coordinates, otherwise they aren't correct on the branches
 		const glm::vec3& worldPosition = GetPosition();
 
 		// vertices to loop through and modify

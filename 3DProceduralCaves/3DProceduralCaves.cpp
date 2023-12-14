@@ -172,17 +172,6 @@ int main()
 				shaderProgram.setMat4("model", model);
 				tunnelMesh->draw();
 			}			
-			
-			for (TunnelIntersectionMesh* tunnelMesh : caveGenerator.tunnelIntersectionMeshes)
-			{
-				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, tunnelMesh->GetPosition());
-				model = glm::scale(model, tunnelMesh->GetScale());
-				rotateByDegrees(model, tunnelMesh->GetRotation());
-
-				shaderProgram.setMat4("model", model);
-				tunnelMesh->draw();
-			}
 		}
 		
 		// Draw lines

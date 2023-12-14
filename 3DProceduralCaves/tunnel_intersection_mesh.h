@@ -3,10 +3,9 @@
 #include <array>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "mesh.h"
-#include "game_object.h"
+#include "tunnel_mesh.h"
 
-class TunnelIntersectionMesh : public GameObject
+class TunnelIntersectionMesh : public TunnelMesh
 {
 public:
 	TunnelIntersectionMesh(const float angle) 
@@ -47,22 +46,13 @@ public:
 			glm::vec3(RIGHT_TURN_PERPENDICULAR_L.x, -0.5, RIGHT_TURN_PERPENDICULAR_L.y)
 		);
 
-		mMesh.generate();
+		// Geometry blurring
+		splitMeshTriangles(2);
 	}	
 
-	~TunnelIntersectionMesh()
-	{
-
-	}
-
-	void draw()
-	{
-		mMesh.draw();
-	}
+	~TunnelIntersectionMesh() { }
 
 private:
-	Mesh mMesh;
-
 	const glm::vec2 getLineEndPos(const glm::vec2& startPos, const float radians, const float lineLength)
 	{
 		return glm::vec2(startPos.x + (lineLength * std::cos(radians)), startPos.y + (lineLength * std::sin(radians)));

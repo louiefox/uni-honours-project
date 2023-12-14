@@ -17,7 +17,6 @@ class CaveGenerator
 public:
 	std::vector<Line*> drawLines;
 	std::vector<TunnelMesh*> tunnelMeshes;
-	std::vector<TunnelIntersectionMesh*> tunnelIntersectionMeshes;
 	int currentIteration = 0;
 	bool tempDevEnablePerlin = false;
 
@@ -33,9 +32,6 @@ public:
 		
 		for (TunnelMesh* mesh : tunnelMeshes)
 			delete mesh;		
-		
-		for (TunnelIntersectionMesh* mesh : tunnelIntersectionMeshes)
-			delete mesh;
 	}
 
 	void GenerateNext()
@@ -81,11 +77,6 @@ public:
 
 		tunnelMeshes = {};		
 		
-		for (TunnelIntersectionMesh* mesh : tunnelIntersectionMeshes)
-			delete mesh;
-
-		tunnelIntersectionMeshes = {};
-		
 		for (Line* line : drawLines)
 			delete line;
 
@@ -113,7 +104,14 @@ public:
 						tunnelPiece->SetPosition(glm::vec3(LINE_END_POS.y, 0.0f, -LINE_END_POS.x));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
-						tunnelIntersectionMeshes.push_back(tunnelPiece);
+						if (previousCharacter == 'F')
+						{
+							TunnelMesh* previousPiece = tunnelMeshes[tunnelMeshes.size() - 1];
+							tunnelPiece->setPreviousTunnelMesh(previousPiece);
+							previousPiece->setNextTunnelMesh(tunnelPiece);
+						}
+
+						tunnelMeshes.push_back(tunnelPiece);
 					}
 					else if(previousCharacter != '-' && previousCharacter != '+') // place normal tunnel if not intersection
 					{
@@ -151,8 +149,14 @@ public:
 		}
 
 		// Generate and blur meshes
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->generateGeometryBlurring();
+		for (int i = 0; i < 2; i++)
+		{
+			for (TunnelMesh* mesh : tunnelMeshes)
+				mesh->generateGeometryBlurring();
+
+			for (TunnelMesh* mesh : tunnelMeshes)
+				mesh->pushGeometryBlurring();
+		}
 		
 		for (TunnelMesh* mesh : tunnelMeshes)
 			mesh->generate();
