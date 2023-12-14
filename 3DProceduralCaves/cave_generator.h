@@ -115,7 +115,7 @@ public:
 					}
 					else if(previousCharacter != '-' && previousCharacter != '+') // place normal tunnel if not intersection
 					{
-						TunnelMesh* tunnelPiece = new TunnelMesh(tempDevEnablePerlin);
+						TunnelMesh* tunnelPiece = new TunnelMesh();
 						tunnelPiece->SetPosition(glm::vec3(currentValue.Position.y + (LINE_END_POS.y - currentValue.Position.y) / 2, 0.0f, -currentValue.Position.x + (-LINE_END_POS.x - -currentValue.Position.x) / 2));
 						tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
@@ -149,13 +149,19 @@ public:
 		}
 
 		// Generate and blur meshes
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 1; i++)
 		{
 			for (TunnelMesh* mesh : tunnelMeshes)
 				mesh->generateGeometryBlurring();
 
 			for (TunnelMesh* mesh : tunnelMeshes)
 				mesh->pushGeometryBlurring();
+		}
+
+		if (tempDevEnablePerlin)
+		{
+			for (TunnelMesh* mesh : tunnelMeshes)
+				mesh->generatePerlinNoise();
 		}
 		
 		for (TunnelMesh* mesh : tunnelMeshes)

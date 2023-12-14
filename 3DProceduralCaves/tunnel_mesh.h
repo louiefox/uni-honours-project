@@ -21,9 +21,7 @@ inline bool operator<(const comparableVec3& lhs, const comparableVec3& rhs)
 class TunnelMesh : public GameObject
 {
 public:
-	TunnelMesh() { }
-
-	TunnelMesh(bool tempDevEnablePerlin)
+	TunnelMesh()
 	{ 
 		mMesh = Mesh();
 
@@ -73,6 +71,11 @@ public:
 	void pushGeometryBlurring()
 	{
 		pushBlurredVertices();
+	}			
+	
+	void generatePerlinNoise()
+	{
+		applyPerlinNoise();
 	}		
 	
 	void generate()
@@ -117,23 +120,6 @@ protected:
 		mMesh.addVertex(topLeft, glm::vec2(0.0, 0.0)); // top left
 		mMesh.addVertex(bottomRight, glm::vec2(1.0, 1.0)); // bottom right
 		mMesh.addVertex(bottomLeft, glm::vec2(0.0, 1.0)); // bottom left	
-
-		//const siv::PerlinNoise::seed_type seed = 123456u;
-		//const siv::PerlinNoise perlin{ seed };
-
-		//for (int i = 0; i < currentVertices.size(); i++)
-		//{
-		//	glm::vec3 vertexPosition = currentVertices[i].Position;
-
-		//	// Apply perlin if not edge vertex
-		//	if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
-		//	{
-		//		const double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
-		//		vertexPosition.y = vertexPosition.y - noise * 0.2;
-		//	}
-
-		//	mMesh.addVertex(vertexPosition, currentVertices[i].TextureCoords);
-		//}
 	}
 
 	void splitMeshTriangles(int timesToSplit)
@@ -265,12 +251,39 @@ protected:
 				differenceVec += nearVertex.Position - vertex.Position;
 			}
 
-			mTempBlurredVertices.push_back({ (vertex.Position - worldPosition) + (differenceVec * 0.1f), vertex.TextureCoords });
+			mTempBlurredVertices.push_back({ (vertex.Position - worldPosition) + (differenceVec * 0.2f), vertex.TextureCoords });
 		}
 	}
 
 	void pushBlurredVertices()
 	{
 		mMesh.setVertices(mTempBlurredVertices);
+	}
+
+	void applyPerlinNoise()
+	{
+		splitMeshTriangles(2);
+
+		const siv::PerlinNoise::seed_type seed = 123456u;
+		const siv::PerlinNoise perlin{ seed };
+
+		const std::vector<Vertex>& currentVertices = mMesh.getVertices();
+
+		std::vector<Vertex> newVertices;
+		for (int i = 0; i < currentVertices.size(); i++)
+		{
+			glm::vec3 vertexPosition = currentVertices[i].Position;
+
+			// Apply perlin if not edge vertex
+			if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
+			{
+				const double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
+				vertexPosition.y = vertexPosition.y - noise * 0.2;
+			}
+
+			newVertices.push_back({ vertexPosition, currentVertices[i].TextureCoords });
+		}
+
+		mMesh.setVertices(newVertices);
 	}
 };
