@@ -1,8 +1,11 @@
 #pragma once
 
+#include <glm/gtx/norm.hpp>
+
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <iostream>
 	
 #include "mesh.h"
 #include "game_object.h"
@@ -59,6 +62,7 @@ public:
 
 		// Geometry blurring
 		splitMeshTriangles(2);
+		std::cout << mMesh.getVertices().size() << std::endl;
 	}	
 	
 	~TunnelMesh() { }
@@ -124,7 +128,7 @@ protected:
 
 	void splitMeshTriangles(int timesToSplit)
 	{
-		std::vector<Vertex> currentVertices = mMesh.getVertices();
+		std::vector<Vertex> currentVertices = mMesh.getAllVertices();
 		for (int split = 0; split < timesToSplit; split++)
 		{
 			// Loop through existing triangles
@@ -192,21 +196,21 @@ protected:
 
 		// vertices to loop through and modify
 		std::vector<Vertex> currentVerticesInWorld;
-		addVerticesToVector(currentVerticesInWorld, mMesh.getVertices(), worldPosition);
+		addVerticesToVector(currentVerticesInWorld, mMesh.getAllVertices(), worldPosition);
 
 		// vertices to look for neighbours in - includes previous/next meshes
 		std::vector<Vertex> searchVertices;
-		addVerticesToVector(searchVertices, mMesh.getVertices(), worldPosition);
+		addVerticesToVector(searchVertices, mMesh.getAllVertices(), worldPosition);
 
 		if (mPreviousTunnelMesh != nullptr)
 		{
-			const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getVertices();
+			const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
 			addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition());
 		}		
 		
 		if (mNextTunnelMesh != nullptr)
 		{
-			const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getVertices();
+			const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
 			addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition());
 		}
 
@@ -235,7 +239,7 @@ protected:
 
 				addedVertices.insert(compareVec3);
 
-				float distance = glm::distance(vertex.Position, otherVertex.Position);
+				float distance = glm::length2(otherVertex.Position - vertex.Position); // glm::distance(vertex.Position, otherVertex.Position);
 				nearestVertices.push_back(std::make_tuple(i, distance));
 			}
 

@@ -32,17 +32,60 @@ public:
 	
 	void setVertices(const std::vector<Vertex>& newVertices)
 	{
-		mVertices = newVertices;
-
+		mVertices.clear();
 		mIndicies.clear();
-		for (int i = 0; i < mVertices.size(); i++)
-			mIndicies.push_back(i);
+
+		for (int i = 0; i < newVertices.size(); i++)
+			addVertex(newVertices[i].Position, newVertices[i].TextureCoords);
 	}
 
 	void addVertex(const glm::vec3& position, const glm::vec2 uvCoords)
 	{
+		int foundIndex = findVertex(position, uvCoords);
+		if (foundIndex != -1)
+		{
+			mIndicies.push_back(foundIndex);
+			return;
+		}
+
 		mVertices.push_back(Vertex{ position, uvCoords });
 		mIndicies.push_back(mVertices.size() - 1);
+	}	
+	
+	bool compareFloats(float value1, float value2)
+	{
+		return std::abs(value1 - value2) < std::numeric_limits<float>::epsilon();
+	}	
+
+	int findVertex(const glm::vec3& position, const glm::vec2 uvCoords)
+	{
+		for (int i = 0; i < mVertices.size(); i++)
+		{
+			const Vertex& otherVertex = mVertices[i];
+
+			if (!compareFloats(position.x, otherVertex.Position.x) || !compareFloats(position.y, otherVertex.Position.y) || !compareFloats(position.z, otherVertex.Position.z))
+				continue;			
+			
+			if (!compareFloats(uvCoords.x, otherVertex.TextureCoords.x) || !compareFloats(uvCoords.y, otherVertex.TextureCoords.y))
+				continue;
+
+			return i;
+		}
+
+		return -1;
+	}
+
+	/// <summary>
+	/// All vertices including duplicated ones
+	/// </summary>
+	/// <returns>Vector of vertices</returns>
+	std::vector<Vertex> getAllVertices() const
+	{
+		std::vector<Vertex> allVertices;
+		for (auto index : mIndicies)
+			allVertices.push_back(mVertices[index]);
+
+		return allVertices;
 	}
 
 	void generate()
