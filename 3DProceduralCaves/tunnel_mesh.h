@@ -271,7 +271,7 @@ protected:
 		const siv::PerlinNoise::seed_type seed = 123456u;
 		const siv::PerlinNoise perlin{ seed };
 
-		const std::vector<Vertex>& currentVertices = mMesh.getVertices();
+		const std::vector<Vertex>& currentVertices = mMesh.getAllVertices();
 
 		std::vector<Vertex> newVertices;
 		for (int i = 0; i < currentVertices.size(); i++)
