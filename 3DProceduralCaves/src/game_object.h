@@ -5,42 +5,16 @@
 class GameObject
 {
 public:
-	GameObject()
-	{
-		position = glm::vec3(0.0, 0.0, 0.0);
-		rotation = glm::vec3(0.0, 0.0, 0.0);
-		scale = glm::vec3(1.0, 1.0, 1.0);
-	}
+	GameObject();
 
-	void SetPosition(glm::vec3 newPosition)
-	{
-		position = newPosition;
-	}	
+	void SetPosition(glm::vec3 newPosition);
+	glm::vec3 GetPosition();
 	
-	glm::vec3 GetPosition()
-	{
-		return position;
-	}	
+	void SetRotation(glm::vec3 newRotation);
+	glm::vec3 GetRotation();
 	
-	void SetRotation(glm::vec3 newRotation)
-	{
-		rotation = newRotation;
-	}	
-	
-	glm::vec3 GetRotation()
-	{
-		return rotation;
-	}	
-	
-	void SetScale(glm::vec3 newScale)
-	{
-		scale = newScale;
-	}	
-	
-	glm::vec3 GetScale()
-	{
-		return scale;
-	}
+	void SetScale(glm::vec3 newScale);
+	glm::vec3 GetScale();
 
 private:
 	glm::vec3 position;

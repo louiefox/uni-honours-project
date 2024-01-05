@@ -149,6 +149,15 @@
     <ClCompile Include="lib\glad.c" />
     <ClCompile Include="lib\stb_image.cpp" />
     <ClCompile Include="src\3DProceduralCaves.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cave_generator.cpp" />
+    <ClCompile Include="src\game_object.cpp" />
+    <ClCompile Include="src\line.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\tunnel_intersection_mesh.cpp" />
+    <ClCompile Include="src\tunnel_mesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h" />

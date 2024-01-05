@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 enum CameraDirections {
 	FORWARD,
 	RIGHT
@@ -8,58 +10,15 @@ enum CameraDirections {
 class Camera
 {
 public:
-	Camera(glm::vec3 startPosition)
-	{
-		cameraPos = startPosition;
-	}
-
-	glm::mat4 getViewMatrix()
-	{
-		return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-	}	
+	Camera(glm::vec3 startPosition);
 	
-	void setFOV(float newValue)
-	{
-		fov = std::max(std::min(newValue, 45.0f), 1.0f);
-	}	
-	
-	float getFOV()
-	{
-		return fov;
-	}	
-	
-	void applyMouseInput(float xOffset, float yOffset)
-	{
-		// apply sensitivity
-		const float sensitivity = 0.05f;
-		xOffset *= sensitivity;
-		yOffset *= sensitivity;
+	void setFOV(float newValue);
+	float getFOV();
 
-		yaw += xOffset;
-		pitch = std::max(std::min(pitch + yOffset, 89.0f), -89.0f); // lock pitch angles
-
-		// adjust camera front normal vector based on angles
-		glm::vec3 direction;
-		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-		direction.y = sin(glm::radians(pitch));
-		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		cameraFront = glm::normalize(direction);
-	}	
+	glm::mat4 getViewMatrix();
 	
-	void applyKeyboardInput(CameraDirections direction, float speed)
-	{
-		switch (direction)
-		{
-			case FORWARD:
-				cameraPos += speed * cameraFront;
-				break;
-			case RIGHT:
-				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
-				break;
-		}
-
-		//cameraPos.y = 0.0f; // disable vertical movement
-	}
+	void applyMouseInput(float xOffset, float yOffset);
+	void applyKeyboardInput(CameraDirections direction, float speed);
 
 private:
 	glm::vec3 cameraPos;
