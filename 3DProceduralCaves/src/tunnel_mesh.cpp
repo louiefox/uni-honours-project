@@ -54,9 +54,9 @@ TunnelMesh::TunnelMesh()
 
 TunnelMesh::~TunnelMesh() { }
 
-void TunnelMesh::generateGeometryBlurring()
+void TunnelMesh::generateGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 {
-	applyGeometryBlurring();
+	applyGeometryBlurring(tunnelMeshes);
 }
 
 void TunnelMesh::pushGeometryBlurring()
@@ -183,9 +183,8 @@ void TunnelMesh::addVerticesToVector(std::vector<Vertex>& vector, const std::vec
 	}
 }
 
-void TunnelMesh::applyGeometryBlurring()
+void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 {
-	// TODO: Apply rotation to coordinates, otherwise they aren't correct on the branches
 	const glm::vec3& worldPosition = GetPosition();
 	const glm::vec3& worldRotation = GetRotation();
 
@@ -197,22 +196,29 @@ void TunnelMesh::applyGeometryBlurring()
 	std::vector<Vertex> searchVertices;
 	addVerticesToVector(searchVertices, mMesh.getAllVertices(), worldPosition, worldRotation);
 
-	if (mPreviousTunnelMesh != nullptr)
-	{
-		const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
-		addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
-	}
+	//if (mPreviousTunnelMesh != nullptr)
+	//{
+	//	const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
+	//	addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
+	//}
 
-	if (mNextTunnelMesh != nullptr)
+	//if (mNextTunnelMesh != nullptr)
+	//{
+	//	const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
+	//	addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
+	//}	
+	//
+	//if (mNextTunnelMesh2 != nullptr)
+	//{
+	//	const std::vector<Vertex>& meshVertices = mNextTunnelMesh2->getMesh().getAllVertices();
+	//	addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
+	//}
+
+	// TEMP: Until adjacent meshes is fixed
+	for (TunnelMesh* mesh : tunnelMeshes)
 	{
-		const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
-		addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
-	}	
-	
-	if (mNextTunnelMesh2 != nullptr)
-	{
-		const std::vector<Vertex>& meshVertices = mNextTunnelMesh2->getMesh().getAllVertices();
-		addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
+		const std::vector<Vertex>& meshVertices = mesh->getMesh().getAllVertices();
+		addVerticesToVector(searchVertices, meshVertices, mesh->GetPosition(), mesh->GetRotation());
 	}
 
 	// loop through current vertices and adjust by neighbours
@@ -279,8 +285,8 @@ void TunnelMesh::applyGeometryBlurring()
 
 		//mTempBlurredVertices.push_back({ ((vertex.Position - worldPosition) / worldRotation) + (differenceVec * 0.2f), vertex.TextureCoords });
 
-		glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(vertex.Position, 1.0f);
-		mTempBlurredVertices.push_back({ glm::vec3(vertexLocalPosition) + (differenceVec * 0.2f), vertex.TextureCoords});
+		glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(vertex.Position + (differenceVec * 0.2f), 1.0f);
+		mTempBlurredVertices.push_back({ glm::vec3(vertexLocalPosition), vertex.TextureCoords});
 	}
 
 	//glm::mat4 inverseTransformMat = glm::mat4(1.0f);
