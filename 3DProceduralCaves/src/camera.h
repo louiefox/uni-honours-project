@@ -15,6 +15,8 @@ public:
 	void setFOV(float newValue);
 	float getFOV();
 
+	glm::vec3 getPosition() { return cameraPos; }
+
 	glm::mat4 getViewMatrix();
 	
 	void applyMouseInput(float xOffset, float yOffset);

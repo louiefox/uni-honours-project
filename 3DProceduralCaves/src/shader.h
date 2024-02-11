@@ -22,6 +22,7 @@ public:
 	void setFloat(const std::string& name, float value) const;
 	void setColor(const std::string& name, float r, float g, float b) const;
 	void setMat4(const std::string& name, glm::mat4 value) const;
+	void setVec3(const std::string& name, float x, float y, float z) const;
 
 private:
 	void checkCompileErrors(unsigned int shader, std::string type);

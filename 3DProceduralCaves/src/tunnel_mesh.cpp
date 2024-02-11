@@ -144,23 +144,23 @@ std::vector<Vertex> TunnelMesh::splitTriangle(glm::vec3 vertex1, glm::vec3 verte
 	glm::vec3 midPoint3 = vertex3 + ((vertex1 - vertex3) / 2.0f);
 
 	// center
-	newVertices.push_back({ midPoint1, glm::vec2(0.5, 0.0) });
-	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.5) });
-	newVertices.push_back({ midPoint3, glm::vec2(0.5, 0.5) });
+	newVertices.push_back({ midPoint1, glm::vec2(0.0, 0.0) });
+	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.0) });
+	newVertices.push_back({ midPoint3, glm::vec2(1.0, 1.0) });
 
 	// vertex1
 	newVertices.push_back({ vertex1, glm::vec2(0.0, 0.0) });
-	newVertices.push_back({ midPoint1, glm::vec2(0.5, 0.0) });
-	newVertices.push_back({ midPoint3, glm::vec2(0.5, 0.5) });
+	newVertices.push_back({ midPoint1, glm::vec2(1.0, 0.0) });
+	newVertices.push_back({ midPoint3, glm::vec2(1.0, 1.0) });
 
 	// vertex2
-	newVertices.push_back({ midPoint1, glm::vec2(0.5, 0.0) });
+	newVertices.push_back({ midPoint1, glm::vec2(0.0, 0.0) });
 	newVertices.push_back({ vertex2, glm::vec2(1.0, 0.0) });
-	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.5) });
+	newVertices.push_back({ midPoint2, glm::vec2(1.0, 1.0) });
 
 	// vertex3
-	newVertices.push_back({ midPoint3, glm::vec2(0.5, 0.5) });
-	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.5) });
+	newVertices.push_back({ midPoint3, glm::vec2(0.0, 0.0) });
+	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.0) });
 	newVertices.push_back({ vertex3, glm::vec2(1.0, 1.0) });
 
 	return newVertices;
