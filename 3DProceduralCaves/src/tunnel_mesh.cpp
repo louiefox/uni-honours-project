@@ -94,6 +94,11 @@ void TunnelMesh::setNextTunnelMesh(TunnelMesh* tunnelMesh)
 	mNextTunnelMesh = tunnelMesh;
 }
 
+void TunnelMesh::setNextTunnelMesh2(TunnelMesh* tunnelMesh)
+{
+	mNextTunnelMesh2 = tunnelMesh;
+}
+
 void TunnelMesh::createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight)
 {
 	// Add default vertices for triangles
@@ -161,11 +166,20 @@ std::vector<Vertex> TunnelMesh::splitTriangle(glm::vec3 vertex1, glm::vec3 verte
 	return newVertices;
 }
 
-void TunnelMesh::addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, glm::vec3 worldPosition)
+void TunnelMesh::addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, const glm::vec3& worldPosition, const glm::vec3& worldRotation)
 {
+	glm::mat4 transformMat = glm::mat4(1.0f);
+
+	transformMat = glm::translate(transformMat, worldPosition);
+
+	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
+	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
+	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+
 	for (const Vertex& vertex : vertices)
 	{
-		vector.push_back({ worldPosition + vertex.Position, vertex.TextureCoords });
+		glm::vec4 vertexWorldPosition = transformMat * glm::vec4(vertex.Position, 1.0f);
+		vector.push_back({ glm::vec3(vertexWorldPosition), vertex.TextureCoords});
 	}
 }
 
@@ -173,29 +187,44 @@ void TunnelMesh::applyGeometryBlurring()
 {
 	// TODO: Apply rotation to coordinates, otherwise they aren't correct on the branches
 	const glm::vec3& worldPosition = GetPosition();
+	const glm::vec3& worldRotation = GetRotation();
 
 	// vertices to loop through and modify
 	std::vector<Vertex> currentVerticesInWorld;
-	addVerticesToVector(currentVerticesInWorld, mMesh.getAllVertices(), worldPosition);
+	addVerticesToVector(currentVerticesInWorld, mMesh.getAllVertices(), worldPosition, worldRotation);
 
 	// vertices to look for neighbours in - includes previous/next meshes
 	std::vector<Vertex> searchVertices;
-	addVerticesToVector(searchVertices, mMesh.getAllVertices(), worldPosition);
+	addVerticesToVector(searchVertices, mMesh.getAllVertices(), worldPosition, worldRotation);
 
 	if (mPreviousTunnelMesh != nullptr)
 	{
 		const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
-		addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition());
+		addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
 	}
 
 	if (mNextTunnelMesh != nullptr)
 	{
 		const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
-		addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition());
+		addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
+	}	
+	
+	if (mNextTunnelMesh2 != nullptr)
+	{
+		const std::vector<Vertex>& meshVertices = mNextTunnelMesh2->getMesh().getAllVertices();
+		addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
 	}
 
 	// loop through current vertices and adjust by neighbours
 	mTempBlurredVertices.clear();
+
+	glm::mat4 inverseTransformMat = glm::mat4(1.0f);
+
+	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
+	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
+	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+
+	inverseTransformMat = glm::translate(inverseTransformMat, -worldPosition);
 
 	for (const Vertex& vertex : currentVerticesInWorld)
 	{
@@ -228,15 +257,47 @@ void TunnelMesh::applyGeometryBlurring()
 			});
 
 		// TODO: Use distance with min/max to make further away vertices matter less
-		glm::vec3 differenceVec = glm::vec3(0.0, 0.0, 0.0);
-		for (int i = 0; i < 4 && i < nearestVertices.size(); i++)
+		const int neighboursToCompare = 4;
+
+		float minDistance = std::numeric_limits<float>::max(), maxDistance = 0.0f;
+		for (int i = 0; i < neighboursToCompare && i < nearestVertices.size(); i++)
 		{
-			const Vertex& nearVertex = searchVertices[std::get<0>(nearestVertices[i])];
-			differenceVec += nearVertex.Position - vertex.Position;
+			const float distance = std::get<1>(nearestVertices[i]);
+			minDistance = std::fmin(minDistance, distance);
+			maxDistance = std::fmax(maxDistance, distance);
 		}
 
-		mTempBlurredVertices.push_back({ (vertex.Position - worldPosition) + (differenceVec * 0.2f), vertex.TextureCoords });
+		glm::vec3 differenceVec = glm::vec3(0.0, 0.0, 0.0);
+		for (int i = 0; i < neighboursToCompare && i < nearestVertices.size(); i++)
+		{
+			const float distance = std::get<1>(nearestVertices[i]);
+			const float minMaxScale = minDistance == maxDistance ? 1.0f : 1.0f - ((distance - minDistance) / (maxDistance - minDistance)); // if min/max distance are the same don't scale
+
+			const Vertex& nearVertex = searchVertices[std::get<0>(nearestVertices[i])];
+			differenceVec += (nearVertex.Position - vertex.Position) * minMaxScale;
+		}
+
+		//mTempBlurredVertices.push_back({ ((vertex.Position - worldPosition) / worldRotation) + (differenceVec * 0.2f), vertex.TextureCoords });
+
+		glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(vertex.Position, 1.0f);
+		mTempBlurredVertices.push_back({ glm::vec3(vertexLocalPosition) + (differenceVec * 0.2f), vertex.TextureCoords});
 	}
+
+	//glm::mat4 inverseTransformMat = glm::mat4(1.0f);
+
+	//inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
+	//inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
+	//inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+
+	//inverseTransformMat = glm::translate(inverseTransformMat, -worldPosition);
+
+	//for (int i = 0; i < mTempBlurredVertices.size(); i++)
+	//{
+	//	const Vertex& tempVertex = mTempBlurredVertices[i];
+
+	//	glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(tempVertex.Position, 1.0f);
+	//	mTempBlurredVertices[i] = { glm::vec3(vertexLocalPosition), tempVertex.TextureCoords };
+	//}
 }
 
 void TunnelMesh::pushBlurredVertices()

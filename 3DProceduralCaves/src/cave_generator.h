@@ -16,6 +16,7 @@ class CaveGenerator
 public:
 	std::vector<Line*> drawLines;
 	std::vector<TunnelMesh*> tunnelMeshes;
+	std::vector<TunnelMesh*> tunnelIntersectionMeshes;
 	int currentIteration = 0;
 	bool tempDevEnablePerlin = false;
 
