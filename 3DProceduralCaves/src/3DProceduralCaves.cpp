@@ -36,6 +36,9 @@ Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 CaveGenerator caveGenerator = CaveGenerator();
 int proceduralStage = 2;
 
+bool showMeshHighlight = false;
+int currentMeshHighlight = 0;
+
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -110,6 +113,8 @@ int main()
 	// Create rock texture
 	stbi_set_flip_vertically_on_load(true); // flip image y-axis, textures 0.0 y-axis is bottom, images is top
 	Texture rockTexture = Texture("assets/textures/rock.jpg");
+	Texture rockHighlightTexture = Texture("assets/textures/rock_highlight.jpg");
+	Texture rockHighlightAdjacentTexture = Texture("assets/textures/rock_highlight_adjacent.jpg");
 
 	// shader program stuff
 	shaderProgram.use();
@@ -146,8 +151,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color buffer and depth buffer
 
 		// Textures - bind container texture to first sampler
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, rockTexture.ID);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, rockTexture.ID);
 
 		// Use shader
 		shaderProgram.use();
@@ -162,8 +167,23 @@ int main()
 		// Draw planes
 		if (proceduralStage >= 2)
 		{
-			for (TunnelMesh* tunnelMesh : caveGenerator.tunnelMeshes)
+			TunnelMesh* highlightedMesh = caveGenerator.tunnelMeshes[currentMeshHighlight];
+
+			for (int i = 0; i < caveGenerator.tunnelMeshes.size(); i++)
 			{
+				TunnelMesh* tunnelMesh = caveGenerator.tunnelMeshes[i];
+
+				// texture stuff
+				glActiveTexture(GL_TEXTURE0);
+
+				if(showMeshHighlight && tunnelMesh == highlightedMesh)
+					glBindTexture(GL_TEXTURE_2D, rockHighlightTexture.ID);
+				else if(showMeshHighlight && (tunnelMesh == highlightedMesh->getPreviousTunnelMesh() || tunnelMesh == highlightedMesh->getNextTunnelMesh() || tunnelMesh == highlightedMesh->getNextTunnelMesh2()))
+					glBindTexture(GL_TEXTURE_2D, rockHighlightAdjacentTexture.ID);
+				else
+					glBindTexture(GL_TEXTURE_2D, rockTexture.ID);
+
+				// draw
 				glm::mat4 model = glm::mat4(1.0f);
 				model = glm::translate(model, tunnelMesh->GetPosition());
 				model = glm::scale(model, tunnelMesh->GetScale());
@@ -359,6 +379,12 @@ void drawImGuiWindow()
 	
 	if (ImGui::Button("2 - Point"))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+
+	// Other stuff
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Other stuff:");
+
+	ImGui::Checkbox("Highlight tunnel mesh", &showMeshHighlight);
+	ImGui::SliderInt("Mesh ID", &currentMeshHighlight, 0, caveGenerator.tunnelMeshes.size() - 1);
 
 	// Key hint
 	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Press [Alt] to show cursor.");

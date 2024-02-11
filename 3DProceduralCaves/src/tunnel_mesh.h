@@ -38,7 +38,11 @@ public:
 	
 	void setPreviousTunnelMesh(TunnelMesh* tunnelMesh);
 	void setNextTunnelMesh(TunnelMesh* tunnelMesh);
-	void setNextTunnelMesh2(TunnelMesh* tunnelMesh);
+	void setNextTunnelMesh2(TunnelMesh* tunnelMesh);	
+	
+	const TunnelMesh* getPreviousTunnelMesh() { return mPreviousTunnelMesh; }
+	const TunnelMesh* getNextTunnelMesh() { return mNextTunnelMesh; }
+	const TunnelMesh* getNextTunnelMesh2() { return mNextTunnelMesh2; }
 
 protected:
 	Mesh mMesh;

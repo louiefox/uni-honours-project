@@ -152,14 +152,14 @@ void CaveGenerator::UpdateDraw()
 	}
 
 	// Generate and blur meshes
-	for (int i = 0; i < 1; i++)
-	{
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->generateGeometryBlurring();
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	for (TunnelMesh* mesh : tunnelMeshes)
+	//		mesh->generateGeometryBlurring();
 
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->pushGeometryBlurring();
-	}
+	//	for (TunnelMesh* mesh : tunnelMeshes)
+	//		mesh->pushGeometryBlurring();
+	//}
 
 	if (tempDevEnablePerlin)
 	{
