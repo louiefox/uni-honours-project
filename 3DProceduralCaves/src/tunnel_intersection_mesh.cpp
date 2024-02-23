@@ -102,7 +102,7 @@ void TunnelIntersectionMesh::createFloor(const float Y_POS, const float angle)
 	if (Y_POS < 0.0f) 
 	{
 		for (int i = 0; i < newVertices.size(); i += 3)
-			std::swap(newVertices[i], newVertices[i + 2]);
+			std::swap(newVertices[i], newVertices[i + 2]); // fix winding order of triangles
 	}
 	
 	// push vertices

@@ -240,7 +240,10 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 
 	for (const Vertex& vertex : currentVerticesInWorld)
 	{
+		const int neighboursToCompare = 4;
+
 		std::vector<std::tuple<int, float>> nearestVertices;
+
 		std::set<comparableVec3> addedVertices;
 		for (int i = 0; i < searchVertices.size(); i++)
 		{
@@ -261,17 +264,38 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 			addedVertices.insert(compareVec3);
 
 			float distance = glm::length2(otherVertex.Position - vertex.Position); // glm::distance(vertex.Position, otherVertex.Position);
-			nearestVertices.push_back(std::make_tuple(i, distance));
+
+			// check if should add to nearest vertices
+			bool addedToNearest = false;
+			if (nearestVertices.size() < neighboursToCompare)
+			{
+				nearestVertices.push_back(std::make_tuple(i, distance));
+				addedToNearest = true;
+			}
+			else if (distance < std::get<1>(nearestVertices[neighboursToCompare - 1])) // check if distance is less than highest stored distance
+			{
+				nearestVertices[neighboursToCompare - 1] = std::make_tuple(i, distance);
+				addedToNearest = true;
+			}
+
+			// if added then move as far to front as possible
+			if (addedToNearest && nearestVertices.size() > 1)
+			{
+				for (int i = std::min(neighboursToCompare - 1, (int)nearestVertices.size() - 1); i > 0; i--)
+				{
+					if (std::get<1>(nearestVertices[i]) < std::get<1>(nearestVertices[i - 1]))
+					{
+						std::swap(nearestVertices[i], nearestVertices[i - 1]);
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
 		}
 
-		// TODO: Don't need to sort all vertices, just store 4 closest based on distance?
-		std::sort(nearestVertices.begin(), nearestVertices.end(), [](std::tuple<int, float>& a, std::tuple<int, float>& b) {
-			return std::get<1>(a) < std::get<1>(b);
-			});
-
-		// TODO: Use distance with min/max to make further away vertices matter less
-		const int neighboursToCompare = 4;
-
+		// adjust based on min/max scalar
 		float minDistance = std::numeric_limits<float>::max(), maxDistance = 0.0f;
 		for (int i = 0; i < neighboursToCompare && i < nearestVertices.size(); i++)
 		{
@@ -290,27 +314,9 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 			differenceVec += (nearVertex.Position - vertex.Position) * minMaxScale;
 		}
 
-		//mTempBlurredVertices.push_back({ ((vertex.Position - worldPosition) / worldRotation) + (differenceVec * 0.2f), vertex.TextureCoords });
-
 		glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(vertex.Position + (differenceVec * 0.2f), 1.0f);
 		mTempBlurredVertices.push_back({ glm::vec3(vertexLocalPosition), vertex.TextureCoords});
 	}
-
-	//glm::mat4 inverseTransformMat = glm::mat4(1.0f);
-
-	//inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
-	//inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
-	//inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
-
-	//inverseTransformMat = glm::translate(inverseTransformMat, -worldPosition);
-
-	//for (int i = 0; i < mTempBlurredVertices.size(); i++)
-	//{
-	//	const Vertex& tempVertex = mTempBlurredVertices[i];
-
-	//	glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(tempVertex.Position, 1.0f);
-	//	mTempBlurredVertices[i] = { glm::vec3(vertexLocalPosition), tempVertex.TextureCoords };
-	//}
 }
 
 void TunnelMesh::pushBlurredVertices()
