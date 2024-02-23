@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include <unordered_set>
 
 #include "mesh.h"
 #include "game_object.h"
@@ -199,32 +200,32 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 	addVerticesToVector(currentVerticesInWorld, mMesh.getAllVertices(), worldPosition, worldRotation);
 
 	// vertices to look for neighbours in - includes previous/next meshes
-	std::vector<Vertex> searchVertices;
-	addVerticesToVector(searchVertices, mMesh.getAllVertices(), worldPosition, worldRotation);
+	std::vector<Vertex> tempSearchVertices;
+	addVerticesToVector(tempSearchVertices, mMesh.getAllVertices(), worldPosition, worldRotation);
 
 	//if (mPreviousTunnelMesh != nullptr)
 	//{
 	//	const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
-	//	addVerticesToVector(searchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
+	//	addVerticesToVector(tempSearchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
 	//}
 
 	//if (mNextTunnelMesh != nullptr)
 	//{
 	//	const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
-	//	addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
+	//	addVerticesToVector(tempSearchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
 	//}	
 	//
 	//if (mNextTunnelMesh2 != nullptr)
 	//{
 	//	const std::vector<Vertex>& meshVertices = mNextTunnelMesh2->getMesh().getAllVertices();
-	//	addVerticesToVector(searchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
+	//	addVerticesToVector(tempSearchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
 	//}
 
 	// TEMP: Until adjacent meshes is fixed
 	for (TunnelMesh* mesh : tunnelMeshes)
 	{
 		const std::vector<Vertex>& meshVertices = mesh->getMesh().getAllVertices();
-		addVerticesToVector(searchVertices, meshVertices, mesh->GetPosition(), mesh->GetRotation());
+		addVerticesToVector(tempSearchVertices, meshVertices, mesh->GetPosition(), mesh->GetRotation());
 	}
 
 	// loop through current vertices and adjust by neighbours
@@ -238,30 +239,37 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 
 	inverseTransformMat = glm::translate(inverseTransformMat, -worldPosition);
 
+	// remove any duplicate vertices in search
+	std::set<comparableVec3> uniqueSearchVertices;
+	std::vector<Vertex> searchVertices;
+	for (int i = 0; i < tempSearchVertices.size(); i++)
+	{
+		const Vertex& vertex = tempSearchVertices[i];
+		comparableVec3 compareVec3 = { vertex.Position.x, vertex.Position.y, vertex.Position.z };
+
+		if (uniqueSearchVertices.find(compareVec3) != uniqueSearchVertices.end())
+		{
+			continue;
+		}
+
+		uniqueSearchVertices.insert(compareVec3);
+		searchVertices.push_back(vertex);
+	}
+
+	// loop through this mesh's vertices and blur
 	for (const Vertex& vertex : currentVerticesInWorld)
 	{
 		const int neighboursToCompare = 4;
 
 		std::vector<std::tuple<int, float>> nearestVertices;
 
-		std::set<comparableVec3> addedVertices;
 		for (int i = 0; i < searchVertices.size(); i++)
 		{
 			const Vertex& otherVertex = searchVertices[i];
-			comparableVec3 compareVec3 = { otherVertex.Position.x, otherVertex.Position.y, otherVertex.Position.z };
 
 			// don't add vertex if same position
 			if (otherVertex.Position == vertex.Position)
 				continue;
-
-			// don't add vertex if already added
-			if (addedVertices.find(compareVec3) != addedVertices.end())
-			{
-				//std::cout << "found same vector" << std::endl;
-				continue;
-			}
-
-			addedVertices.insert(compareVec3);
 
 			float distance = glm::length2(otherVertex.Position - vertex.Position); // glm::distance(vertex.Position, otherVertex.Position);
 
