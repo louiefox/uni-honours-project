@@ -39,6 +39,7 @@ int proceduralStage = 2;
 bool showMeshHighlight = false;
 int currentMeshHighlight = 0;
 bool showLightingTest = false;
+bool showNormalLines = false;
 
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -282,6 +283,7 @@ int main()
 		}
 		
 		// Draw lines
+		if(showNormalLines)
 		{
 			lineShaderProgram.use();
 			lineShaderProgram.setMat4("view", view);
@@ -299,17 +301,17 @@ int main()
 			}
 		}
 
-		//if (proceduralStage >= 1)
-		//{
-		//	lineShaderProgram.use();
-		//	lineShaderProgram.setMat4("view", view);
-		//	lineShaderProgram.setMat4("projection", projection);
+		if (proceduralStage == 1)
+		{
+			lineShaderProgram.use();
+			lineShaderProgram.setMat4("view", view);
+			lineShaderProgram.setMat4("projection", projection);
 
-		//	for (Line* line : caveGenerator.drawLines)
-		//	{
-		//		line->Draw();
-		//	}
-		//}
+			for (Line* line : caveGenerator.drawLines)
+			{
+				line->Draw();
+			}
+		}
 
 		if (showLightingTest)
 		{
@@ -506,7 +508,8 @@ void drawImGuiWindow()
 	ImGui::Checkbox("Highlight tunnel mesh", &showMeshHighlight);
 	ImGui::SliderInt("Mesh ID", &currentMeshHighlight, 0, caveGenerator.tunnelMeshes.size() - 1);
 
-	ImGui::Checkbox("Lighting test", &showLightingTest);
+	ImGui::Checkbox("Show light source", &showLightingTest);
+	ImGui::Checkbox("Show normal lines", &showNormalLines);
 
 	// Key hint
 	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Press [Alt] to show cursor.");

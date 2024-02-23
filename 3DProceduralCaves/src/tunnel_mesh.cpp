@@ -63,6 +63,7 @@ void TunnelMesh::generateGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 void TunnelMesh::pushGeometryBlurring()
 {
 	pushBlurredVertices();
+	splitMeshTriangles(1);
 }
 
 void TunnelMesh::generatePerlinNoise()
