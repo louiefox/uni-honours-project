@@ -35,6 +35,8 @@ Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 CaveGenerator caveGenerator = CaveGenerator();
 int proceduralStage = 2;
+int preBlurSplitting = 2;
+int postBlurSplitting = 1;
 
 bool showMeshHighlight = false;
 int currentMeshHighlight = 0;
@@ -482,7 +484,13 @@ void drawImGuiWindow()
 	//ImGui::Checkbox("Checkbox", &boolParam);
 	
 	if (ImGui::SliderFloat("Branch Angle", &floatParam, 0.0f, 90.0f))
-		caveGenerator.SetAdjustAngle(floatParam);
+		caveGenerator.SetAdjustAngle(floatParam);	
+	
+	if (ImGui::SliderInt("Pre Blur Splitting", &preBlurSplitting, 0, 10))
+		caveGenerator.SetPreBlurSplitting(preBlurSplitting);
+	
+	if (ImGui::SliderInt("Post Blur Splitting", &postBlurSplitting, 0, 10))
+		caveGenerator.SetPostBlurSplitting(postBlurSplitting);
 
 	if (ImGui::Button("Regenerate Current"))
 		caveGenerator.ReGenerateCurrent();	

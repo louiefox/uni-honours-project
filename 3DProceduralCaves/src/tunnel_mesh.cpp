@@ -47,10 +47,6 @@ TunnelMesh::TunnelMesh()
 		glm::vec3(0.5, -0.5, 0.5),
 		glm::vec3(0.5, -0.5, -0.5)
 	);
-
-	// Geometry blurring
-	splitMeshTriangles(2);
-	std::cout << mMesh.getVertices().size() << std::endl;
 }
 
 TunnelMesh::~TunnelMesh() { }
@@ -63,7 +59,6 @@ void TunnelMesh::generateGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 void TunnelMesh::pushGeometryBlurring()
 {
 	pushBlurredVertices();
-	splitMeshTriangles(1);
 }
 
 void TunnelMesh::generatePerlinNoise()

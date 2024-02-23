@@ -152,6 +152,12 @@ void CaveGenerator::UpdateDraw()
 	}
 
 	// Generate and blur meshes
+	for (TunnelMesh* mesh : tunnelMeshes)
+		mesh->splitMeshTriangles(preBlurSplitting);	
+	
+	for (TunnelMesh* mesh : tunnelMeshes)
+		std::cout << mesh->getMesh().getVertices().size() << std::endl;
+
 	for (int i = 0; i < 2; i++)
 	{
 		for (TunnelMesh* mesh : tunnelMeshes)
@@ -160,6 +166,9 @@ void CaveGenerator::UpdateDraw()
 		for (TunnelMesh* mesh : tunnelMeshes)
 			mesh->pushGeometryBlurring();		
 	}
+
+	for (TunnelMesh* mesh : tunnelMeshes)
+		mesh->splitMeshTriangles(postBlurSplitting);
 
 	if (tempDevEnablePerlin)
 	{

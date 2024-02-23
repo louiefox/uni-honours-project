@@ -40,9 +40,6 @@ TunnelIntersectionMesh::TunnelIntersectionMesh(const float angle)
 		glm::vec3(RIGHT_TURN_PERPENDICULAR_L.x, -0.5, RIGHT_TURN_PERPENDICULAR_L.y),
 		glm::vec3(LEFT_TURN_PERPENDICULAR_R.x, -0.5, LEFT_TURN_PERPENDICULAR_R.y)
 	);
-
-	// Geometry blurring
-	splitMeshTriangles(2);
 }
 
 TunnelIntersectionMesh::~TunnelIntersectionMesh() 

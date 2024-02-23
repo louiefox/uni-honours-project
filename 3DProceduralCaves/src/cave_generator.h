@@ -27,11 +27,15 @@ public:
 	void ReGenerateCurrent();
 	void UpdateDraw();
 	void SetAdjustAngle(float newAdjustAngle);
+	void SetPreBlurSplitting(int newValue) { preBlurSplitting = newValue; }
+	void SetPostBlurSplitting(int newValue) { postBlurSplitting = newValue; }
 
 private:
 	std::string CurrentString = "X";
 	float lineLength = 1.0f;
 	float adjustAngle = 45.0f;
+	float preBlurSplitting = 2;
+	float postBlurSplitting = 1;
 
 	const glm::vec2& getLineEndPos(glm::vec2 startPos, float radians);
 };
