@@ -6,7 +6,7 @@
 
 Line::Line(glm::vec3 lineStart, glm::vec3 lineEnd)
 {
-	vertices.push_back(LineVertex{ lineStart, glm::vec3(1.0f, 0.0f, 0.0f) });
+	vertices.push_back(LineVertex{ lineStart, glm::vec3(1.0f, 0.0f, 0.0f)});
 	vertices.push_back(LineVertex{ lineEnd, glm::vec3(0.0f, 1.0f, 0.0f) });
 
 	// Create objects
@@ -24,7 +24,7 @@ Line::Line(glm::vec3 lineStart, glm::vec3 lineEnd)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)0); // attrib index, attrib size, attrib type, false, stride, offset
 	glEnableVertexAttribArray(0);
 
-	// texture coords attribute
+	// color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (void*)offsetof(LineVertex, Color)); // offsetof finds the offset of the variable within that struct
 	glEnableVertexAttribArray(1);
 

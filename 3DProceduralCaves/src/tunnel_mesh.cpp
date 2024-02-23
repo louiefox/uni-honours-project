@@ -17,10 +17,10 @@ TunnelMesh::TunnelMesh()
 
 	// floor
 	createQuad(
-		glm::vec3(-0.5, -0.5, -0.5),
 		glm::vec3(0.5, -0.5, -0.5),
-		glm::vec3(-0.5, -0.5, 0.5),
-		glm::vec3(0.5, -0.5, 0.5)
+		glm::vec3(-0.5, -0.5, -0.5),
+		glm::vec3(0.5, -0.5, 0.5),
+		glm::vec3(-0.5, -0.5, 0.5)
 	);
 
 	// ceiling
@@ -33,10 +33,10 @@ TunnelMesh::TunnelMesh()
 
 	// left wall
 	createQuad(
-		glm::vec3(-0.5, 0.5, 0.5),
 		glm::vec3(-0.5, 0.5, -0.5),
-		glm::vec3(-0.5, -0.5, 0.5),
-		glm::vec3(-0.5, -0.5, -0.5)
+		glm::vec3(-0.5, 0.5, 0.5),
+		glm::vec3(-0.5, -0.5, -0.5),
+		glm::vec3(-0.5, -0.5, 0.5)
 	);
 
 	// right wall
@@ -71,12 +71,18 @@ void TunnelMesh::generatePerlinNoise()
 
 void TunnelMesh::generate()
 {
+	mMesh.calculateNormals(GetPosition(), GetRotation());
 	mMesh.generate();
 }
 
 void TunnelMesh::draw()
 {
 	mMesh.draw();
+}
+
+void TunnelMesh::drawNormalLines()
+{
+	mMesh.drawNormalLines();
 }
 
 const Mesh& TunnelMesh::getMesh() const
@@ -258,6 +264,7 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 			nearestVertices.push_back(std::make_tuple(i, distance));
 		}
 
+		// TODO: Don't need to sort all vertices, just store 4 closest based on distance?
 		std::sort(nearestVertices.begin(), nearestVertices.end(), [](std::tuple<int, float>& a, std::tuple<int, float>& b) {
 			return std::get<1>(a) < std::get<1>(b);
 			});

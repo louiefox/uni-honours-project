@@ -189,7 +189,7 @@ int main()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glm::vec3 lightSrcPos(1.2f, 1.0f, 2.0f);
+	glm::vec3 lightSrcPos(0.0f, 0.0f, -3.0f);
 
 	unsigned int lightingSrcVAO;
 	glGenVertexArrays(1, &lightingSrcVAO);
@@ -223,9 +223,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color buffer and depth buffer
 
 		// Lighting stuff
-		shaderProgram.use();
-		shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		//shaderProgram.use();
+		//shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		//shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 		// Textures - bind container texture to first sampler
 		//glActiveTexture(GL_TEXTURE0);
@@ -236,10 +236,20 @@ int main()
 
 		// Transformations
 		glm::mat4 view = viewCamera.getViewMatrix(); // view matrix using camera data and look at function
-		shaderProgram.setMat4("view", view);
+		//shaderProgram.setMat4("view", view);
 
 		glm::mat4 projection = glm::perspective(glm::radians(viewCamera.getFOV()), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f); // projection matrix using perspective
-		shaderProgram.setMat4("projection", projection);
+		//shaderProgram.setMat4("projection", projection);
+
+		// lighting shader
+		lightingShaderProgram.use();
+		lightingShaderProgram.setVec3("objectColor", 1.0f, 0.4f, 0.4f);
+		lightingShaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShaderProgram.setVec3("lightPos", lightSrcPos.x, lightSrcPos.y, lightSrcPos.z);
+		lightingShaderProgram.setVec3("viewPos", viewCamera.getPosition().x, viewCamera.getPosition().y, viewCamera.getPosition().z);
+
+		lightingShaderProgram.setMat4("view", view);
+		lightingShaderProgram.setMat4("projection", projection);
 
 		// Draw planes
 		if (proceduralStage >= 2)
@@ -266,59 +276,55 @@ int main()
 				model = glm::scale(model, tunnelMesh->GetScale());
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
-				shaderProgram.setMat4("model", model);
+				lightingShaderProgram.setMat4("model", model);
 				tunnelMesh->draw();
 			}			
 		}
 		
 		// Draw lines
-		if (proceduralStage >= 1)
 		{
 			lineShaderProgram.use();
 			lineShaderProgram.setMat4("view", view);
 			lineShaderProgram.setMat4("projection", projection);
 
-			for (Line* line : caveGenerator.drawLines)
+			for (const auto& tunnelMesh : caveGenerator.tunnelMeshes)
 			{
-				line->Draw();
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, tunnelMesh->GetPosition());
+				model = glm::scale(model, tunnelMesh->GetScale());
+				rotateByDegrees(model, tunnelMesh->GetRotation());
+
+				lineShaderProgram.setMat4("model", model);
+				tunnelMesh->drawNormalLines();
 			}
 		}
 
+		//if (proceduralStage >= 1)
+		//{
+		//	lineShaderProgram.use();
+		//	lineShaderProgram.setMat4("view", view);
+		//	lineShaderProgram.setMat4("projection", projection);
+
+		//	for (Line* line : caveGenerator.drawLines)
+		//	{
+		//		line->Draw();
+		//	}
+		//}
+
 		if (showLightingTest)
 		{
-			// Draw lighting cube
-			{
-				lightingShaderProgram.use();
-				lightingShaderProgram.setVec3("objectColor", 1.0f, 0.4f, 0.4f);
-				lightingShaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-				lightingShaderProgram.setVec3("lightPos", lightSrcPos.x, lightSrcPos.y, lightSrcPos.z);
-				lightingShaderProgram.setVec3("viewPos", viewCamera.getPosition().x, viewCamera.getPosition().y, viewCamera.getPosition().z);
-
-				lightingShaderProgram.setMat4("view", view);
-				lightingShaderProgram.setMat4("projection", projection);
-
-				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, lightSrcPos - glm::vec3(1.0f, 1.0f, 0.0f));
-				lightingShaderProgram.setMat4("model", model);
-
-				glBindVertexArray(lightingCubeVAO);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
-
 			// Draw lighting source
-			{
-				lightSrcShaderProgram.use();
-				lightSrcShaderProgram.setMat4("view", view);
-				lightSrcShaderProgram.setMat4("projection", projection);
+			lightSrcShaderProgram.use();
+			lightSrcShaderProgram.setMat4("view", view);
+			lightSrcShaderProgram.setMat4("projection", projection);
 
-				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, lightSrcPos);
-				model = glm::scale(model, glm::vec3(0.2f));
-				lightSrcShaderProgram.setMat4("model", model);
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, lightSrcPos);
+			model = glm::scale(model, glm::vec3(0.2f));
+			lightSrcShaderProgram.setMat4("model", model);
 
-				glBindVertexArray(lightingSrcVAO);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+			glBindVertexArray(lightingSrcVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
 		// ImGui render

@@ -16,4 +16,5 @@ private:
 	
 	void createFloor(const float Y_POS, const float angle);
 	void createWall(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight);
+	void pushVertexToVector(std::vector<Vertex>& vec, glm::vec3 pos, glm::vec2 texCoords) { vec.push_back(Vertex{pos, texCoords}); } // TEMP
 };

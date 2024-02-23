@@ -33,6 +33,7 @@ public:
 	
 	void generate();
 	void draw();
+	void drawNormalLines();
 
 	const Mesh& getMesh() const;
 	
