@@ -33,7 +33,7 @@ public:
 	std::vector<Vertex> getAllVertices() const;
 
 	void generate();
-	void calculateNormals(const glm::vec3& worldPosition, const glm::vec3& worldRotation);
+	void calculateNormals();
 	void draw();
 	void drawNormalLines();
 

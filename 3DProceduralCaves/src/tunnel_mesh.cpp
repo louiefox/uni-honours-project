@@ -68,7 +68,7 @@ void TunnelMesh::generatePerlinNoise()
 
 void TunnelMesh::generate()
 {
-	mMesh.calculateNormals(GetPosition(), GetRotation());
+	mMesh.calculateNormals();
 	mMesh.generate();
 }
 
@@ -171,18 +171,11 @@ std::vector<Vertex> TunnelMesh::splitTriangle(glm::vec3 vertex1, glm::vec3 verte
 
 void TunnelMesh::addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, const glm::vec3& worldPosition, const glm::vec3& worldRotation)
 {
-	glm::mat4 transformMat = glm::mat4(1.0f);
-
-	transformMat = glm::translate(transformMat, worldPosition);
-
-	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
-	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
-	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+	glm::mat4 transformMat = getWorldMatrix(worldPosition, worldRotation);
 
 	for (const Vertex& vertex : vertices)
 	{
-		glm::vec4 vertexWorldPosition = transformMat * glm::vec4(vertex.Position, 1.0f);
-		vector.push_back({ glm::vec3(vertexWorldPosition), vertex.TextureCoords});
+		vector.push_back({ transformVecByMatrix(vertex.Position, transformMat), vertex.TextureCoords});
 	}
 }
 
@@ -227,13 +220,7 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 	// loop through current vertices and adjust by neighbours
 	mTempBlurredVertices.clear();
 
-	glm::mat4 inverseTransformMat = glm::mat4(1.0f);
-
-	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
-	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
-	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
-
-	inverseTransformMat = glm::translate(inverseTransformMat, -worldPosition);
+	glm::mat4 inverseTransformMat = getWorldInverseMatrix();
 
 	// remove any duplicate vertices in search
 	std::set<comparableVec3> uniqueSearchVertices;
@@ -318,8 +305,7 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 			differenceVec += (nearVertex.Position - vertex.Position) * minMaxScale;
 		}
 
-		glm::vec4 vertexLocalPosition = inverseTransformMat * glm::vec4(vertex.Position + (differenceVec * 0.2f), 1.0f);
-		mTempBlurredVertices.push_back({ glm::vec3(vertexLocalPosition), vertex.TextureCoords});
+		mTempBlurredVertices.push_back({ transformVecByMatrix(vertex.Position + (differenceVec * 0.2f), inverseTransformMat), vertex.TextureCoords});
 	}
 }
 
@@ -331,6 +317,7 @@ void TunnelMesh::pushBlurredVertices()
 void TunnelMesh::applyPerlinNoise()
 {
 	splitMeshTriangles(2);
+	mMesh.calculateNormals();
 
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise perlin{ seed };
@@ -343,14 +330,59 @@ void TunnelMesh::applyPerlinNoise()
 		glm::vec3 vertexPosition = currentVertices[i].Position;
 
 		// Apply perlin if not edge vertex
+		//if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
+		//{
+		//	const double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
+		//	vertexPosition.y = vertexPosition.y - noise * 0.2;
+		//}
+
+		double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
 		if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
 		{
-			const double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
-			vertexPosition.y = vertexPosition.y - noise * 0.2;
+			noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
 		}
 
-		newVertices.push_back({ vertexPosition, currentVertices[i].TextureCoords });
+		vertexPosition -= currentVertices[i].Normal * (float)noise * 0.5f;
+
+		newVertices.push_back({ vertexPosition, currentVertices[i].TextureCoords, currentVertices[i].Normal });
 	}
 
 	mMesh.setVertices(newVertices);
+}
+
+glm::mat4 TunnelMesh::getWorldMatrix(const glm::vec3& worldPosition, const glm::vec3& worldRotation)
+{
+	glm::mat4 transformMat = glm::mat4(1.0f);
+
+	transformMat = glm::translate(transformMat, worldPosition);
+
+	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
+	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
+	transformMat = glm::rotate(transformMat, glm::radians(worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+
+	return transformMat;
+}
+
+glm::mat4 TunnelMesh::getWorldMatrix()
+{
+	return getWorldMatrix(GetPosition(), GetRotation());
+}
+
+glm::mat4 TunnelMesh::getWorldInverseMatrix()
+{
+	glm::mat4 inverseTransformMat = glm::mat4(1.0f);
+
+	const glm::vec3 worldRotation = GetRotation();
+	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
+	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
+	inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+
+	inverseTransformMat = glm::translate(inverseTransformMat, -GetPosition());
+
+	return inverseTransformMat;
+}
+
+glm::vec3 TunnelMesh::transformVecByMatrix(const glm::vec3& coords, const glm::mat4& matrix)
+{
+	return glm::vec3(matrix * glm::vec4(coords, 1.0f));
 }

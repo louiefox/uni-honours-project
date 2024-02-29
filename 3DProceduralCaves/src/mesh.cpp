@@ -78,7 +78,7 @@ glm::vec3 Mesh::calculateNormalFace(const glm::vec3& vec1, const glm::vec3& vec2
 	return glm::normalize(glm::cross(vec2 - vec1, vec3 - vec1));
 }
 
-void Mesh::calculateNormals(const glm::vec3& worldPosition, const glm::vec3& worldRotation)
+void Mesh::calculateNormals()
 {
 	// clear normals incase function is ran again?
 	for (int i = 0; i < mVertices.size(); i++)

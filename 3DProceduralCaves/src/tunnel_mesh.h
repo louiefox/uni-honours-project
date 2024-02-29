@@ -61,4 +61,9 @@ protected:
 	void applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes);
 	void pushBlurredVertices();
 	void applyPerlinNoise();
+
+	glm::mat4 getWorldMatrix();
+	glm::mat4 getWorldMatrix(const glm::vec3& worldPosition, const glm::vec3& worldRotation);
+	glm::mat4 getWorldInverseMatrix();
+	glm::vec3 transformVecByMatrix(const glm::vec3& coords, const glm::mat4& matrix);
 };

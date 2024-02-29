@@ -33,7 +33,6 @@ bool mouseInputEnabled = true;
 
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-CaveGenerator caveGenerator = CaveGenerator();
 int proceduralStage = 2;
 int preBlurSplitting = 2;
 int postBlurSplitting = 1;
@@ -48,7 +47,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-void drawImGuiWindow();
+void drawImGuiWindow(CaveGenerator& caveGenerator);
 
 void rotateByDegrees(glm::mat4& model, const glm::vec3& rotation)
 {
@@ -129,6 +128,7 @@ int main()
 	lineShaderProgram.use();
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
+	CaveGenerator caveGenerator = CaveGenerator();
 	caveGenerator.GenerateNext();
 	caveGenerator.GenerateNext();
 
@@ -216,7 +216,7 @@ int main()
 		glfwPollEvents();
 
 		// Draw imgui window
-		drawImGuiWindow();
+		drawImGuiWindow(caveGenerator);
 
 		// Process input
 		processInput(window);
@@ -428,7 +428,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	viewCamera.setFOV(viewCamera.getFOV() + -2.0f * (float)yoffset);
 }
 
-void switchProceduralLevel(int newLevel)
+void switchProceduralLevel(CaveGenerator& caveGenerator, int newLevel)
 {
 	proceduralStage = newLevel;
 
@@ -444,8 +444,7 @@ std::array<std::string, 4> proceduralLevelNames = {
 };
 
 float floatParam = 45.0f;
-bool boolParam = false;
-void drawImGuiWindow()
+void drawImGuiWindow(CaveGenerator& caveGenerator)
 {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -475,13 +474,11 @@ void drawImGuiWindow()
 	{
 		std::string buttonText = std::to_string(i) + " - " + proceduralLevelNames[i] + (proceduralStage == i ? " (Current)" : "");
 		if (ImGui::Button(buttonText.c_str()))
-			switchProceduralLevel(i);
+			switchProceduralLevel(caveGenerator, i);
 	}
 
 	// Generation parameters
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Generation paramaters:");
-
-	//ImGui::Checkbox("Checkbox", &boolParam);
 	
 	if (ImGui::SliderFloat("Branch Angle", &floatParam, 0.0f, 90.0f))
 		caveGenerator.SetAdjustAngle(floatParam);	
@@ -497,6 +494,8 @@ void drawImGuiWindow()
 	
 	if (ImGui::Button("Generate Next"))
 		caveGenerator.GenerateNext();
+
+	//ImGui::ProgressBar(0.5f);
 
 	// Render modes
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Polygon render modes:");
