@@ -171,7 +171,7 @@ std::vector<Vertex> TunnelMesh::splitTriangle(glm::vec3 vertex1, glm::vec3 verte
 
 void TunnelMesh::addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, const glm::vec3& worldPosition, const glm::vec3& worldRotation)
 {
-	glm::mat4 transformMat = getWorldMatrix(worldPosition, worldRotation);
+	const glm::mat4 transformMat = getWorldMatrix(worldPosition, worldRotation);
 
 	for (const Vertex& vertex : vertices)
 	{
@@ -324,27 +324,24 @@ void TunnelMesh::applyPerlinNoise()
 
 	const std::vector<Vertex>& currentVertices = mMesh.getAllVertices();
 
+	const glm::mat4 transformMat = getWorldMatrix();
+	const glm::mat4 inverseTransformMat = getWorldInverseMatrix();
+
 	std::vector<Vertex> newVertices;
 	for (int i = 0; i < currentVertices.size(); i++)
 	{
-		glm::vec3 vertexPosition = currentVertices[i].Position;
+		glm::vec3 vertexPosition = transformVecByMatrix(currentVertices[i].Position, transformMat);
 
-		// Apply perlin if not edge vertex
+		double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
 		//if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
-		//{
-		//	const double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
-		//	vertexPosition.y = vertexPosition.y - noise * 0.2;
-		//}
-
-		double noise = perlin.noise2D_01((GetPosition().x + vertexPosition.x) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
-		if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
 		{
-			noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
+			//noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
+			vertexPosition.y -= noise * 0.2;
 		}
 
-		vertexPosition -= currentVertices[i].Normal * (float)noise * 0.5f;
+		//vertexPosition -= currentVertices[i].Normal * (float)noise * 0.5f;
 
-		newVertices.push_back({ vertexPosition, currentVertices[i].TextureCoords, currentVertices[i].Normal });
+		newVertices.push_back({ transformVecByMatrix(vertexPosition, inverseTransformMat), currentVertices[i].TextureCoords, currentVertices[i].Normal });
 	}
 
 	mMesh.setVertices(newVertices);
