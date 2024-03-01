@@ -112,8 +112,9 @@ int main()
 
 	// Create shader
 	Shader shaderProgram = Shader("assets/shaders/textured_vertex_shader.vs", "assets/shaders/textured_fragment_shader.fs");
-	Shader lineShaderProgram = Shader("assets/shaders/line_vertex_shader.vs", "assets/shaders/line_fragment_shader.fs");
 	Shader flatShaderProgram = Shader("assets/shaders/flat_vertex_shader.vs", "assets/shaders/flat_fragment_shader.fs");
+	Shader smoothShaderProgram = Shader("assets/shaders/smooth_vertex_shader.vs", "assets/shaders/smooth_fragment_shader.fs");
+	Shader lineShaderProgram = Shader("assets/shaders/line_vertex_shader.vs", "assets/shaders/line_fragment_shader.fs");
 	Shader lightSrcShaderProgram = Shader("assets/shaders/lightsource_vertex_shader.vs", "assets/shaders/lightsource_fragment_shader.fs");
 
 	// Create rock texture
@@ -245,7 +246,7 @@ int main()
 		glm::mat4 projection = glm::perspective(glm::radians(viewCamera.getFOV()), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f); // projection matrix using perspective
 		//shaderProgram.setMat4("projection", projection);
 
-		Shader& mainShader = shaderRenderMode == 0 ? shaderProgram : flatShaderProgram;
+		Shader& mainShader = shaderRenderMode == 0 ? shaderProgram : (shaderRenderMode == 1 ? smoothShaderProgram : flatShaderProgram);
 
 		// lighting shader
 		mainShader.use();

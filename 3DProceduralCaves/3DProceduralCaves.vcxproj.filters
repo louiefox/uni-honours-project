@@ -160,5 +160,11 @@
     <None Include="assets\shaders\textured_vertex_shader.vs">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="assets\shaders\smooth_fragment_shader.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\smooth_vertex_shader.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

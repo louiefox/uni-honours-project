@@ -187,6 +187,8 @@
     <None Include="assets\shaders\lightsource_vertex_shader.vs" />
     <None Include="assets\shaders\line_fragment_shader.fs" />
     <None Include="assets\shaders\line_vertex_shader.vs" />
+    <None Include="assets\shaders\smooth_fragment_shader.fs" />
+    <None Include="assets\shaders\smooth_vertex_shader.vs" />
     <None Include="assets\shaders\textured_fragment_shader.fs" />
     <None Include="assets\shaders\textured_vertex_shader.vs" />
   </ItemGroup>
