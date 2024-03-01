@@ -332,16 +332,31 @@ void TunnelMesh::applyPerlinNoise()
 	{
 		glm::vec3 vertexPosition = transformVecByMatrix(currentVertices[i].Position, transformMat);
 
-		double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
-		double noise2 = perlin.noise2D_01(vertexPosition.x * 25.0, vertexPosition.z * 25.0);
-		//if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
-		{
-			//noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
-			vertexPosition.y -= noise * 0.2;
-			vertexPosition.y -= noise2 * 0.05;
-		}
+		//double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
+		//double noise2 = perlin.noise2D_01(vertexPosition.x * 25.0, vertexPosition.z * 25.0);
+		////if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
+		//{
+		//	//noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
+		//	vertexPosition.y -= noise * 0.1;
+		//	vertexPosition.y -= noise2 * 0.05;
+		//}
 
 		//vertexPosition -= currentVertices[i].Normal * (float)noise * 0.5f;
+
+		float noise = perlin.noise3D(vertexPosition.x * 3.0, vertexPosition.y * 3.0, vertexPosition.z * 3.0);
+		vertexPosition.x += noise * 0.05;
+		vertexPosition.y += noise * 0.05;
+		vertexPosition.z += noise * 0.05;		
+		
+		float noise2 = perlin.noise3D(vertexPosition.x * 10.0, vertexPosition.y * 10.0, vertexPosition.z * 10.0);
+		vertexPosition.x += noise2 * 0.02;
+		vertexPosition.y += noise2 * 0.02;
+		vertexPosition.z += noise2 * 0.02;		
+		
+		float noise3 = perlin.noise3D(vertexPosition.x * 0.5, vertexPosition.y * 0.5, vertexPosition.z * 0.5);
+		vertexPosition.x += noise3 * 0.5;
+		vertexPosition.y += noise3 * 0.3;
+		vertexPosition.z += noise3 * 0.5;
 
 		newVertices.push_back({ transformVecByMatrix(vertexPosition, inverseTransformMat), currentVertices[i].TextureCoords, currentVertices[i].Normal });
 	}
