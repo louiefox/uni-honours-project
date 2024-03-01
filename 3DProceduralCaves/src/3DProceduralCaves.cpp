@@ -36,7 +36,7 @@ Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 int proceduralStage = 2;
 int preBlurSplitting = 2;
 int postBlurSplitting = 1;
-int shaderRenderMode = 0;
+int shaderRenderMode = 1;
 
 bool showMeshHighlight = false;
 int currentMeshHighlight = 0;
@@ -206,7 +206,6 @@ int main()
 	// --------------------------------------
 	// RENDER LOOP
 	// --------------------------------------
-	float my_color[4] = {0.0, 0.0, 0.0, 0.0};
 	while (!glfwWindowShouldClose(window))
 	{
 		// Frame time
@@ -250,7 +249,7 @@ int main()
 
 		// lighting shader
 		mainShader.use();
-		mainShader.setVec3("objectColor", 1.0f, 0.4f, 0.4f);
+		mainShader.setVec3("objectColor", 0.2f, 0.2f, 0.2f);
 		mainShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		mainShader.setVec3("lightPos", lightSrcPos.x, lightSrcPos.y, lightSrcPos.z);
 		mainShader.setVec3("viewPos", viewCamera.getPosition().x, viewCamera.getPosition().y, viewCamera.getPosition().z);

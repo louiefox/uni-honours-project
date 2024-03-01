@@ -333,10 +333,12 @@ void TunnelMesh::applyPerlinNoise()
 		glm::vec3 vertexPosition = transformVecByMatrix(currentVertices[i].Position, transformMat);
 
 		double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
+		double noise2 = perlin.noise2D_01(vertexPosition.x * 25.0, vertexPosition.z * 25.0);
 		//if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
 		{
 			//noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
 			vertexPosition.y -= noise * 0.2;
+			vertexPosition.y -= noise2 * 0.05;
 		}
 
 		//vertexPosition -= currentVertices[i].Normal * (float)noise * 0.5f;
