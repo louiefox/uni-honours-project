@@ -450,6 +450,12 @@ std::array<std::string, 4> proceduralLevelNames = {
 	"Perlin Noise"
 };
 
+//std::array<std::string, 3> renderModes = {
+//	"Textured",
+//	"Smooth Shading",
+//	"Flat Shading"
+//};
+
 float floatParam = 45.0f;
 void drawImGuiWindow(CaveGenerator& caveGenerator)
 {
@@ -521,6 +527,22 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 
 	// Shading modes
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Render modes:");
+
+	//if (ImGui::BeginCombo("Mode", renderModes[shaderRenderMode].c_str(), ImGuiComboFlags_NoArrowButton))
+	//{
+	//	for (int i = 0; i < renderModes.size(); i++)
+	//	{
+	//		bool isSelected = shaderRenderMode == i;
+
+	//		if (ImGui::Selectable(renderModes[i].c_str(), isSelected))
+	//			shaderRenderMode = i;
+
+	//		if (isSelected)
+	//			ImGui::SetItemDefaultFocus();
+	//	}
+
+	//	ImGui::EndCombo();
+	//}
 
 	if (ImGui::Button("0 - Textured"))
 		shaderRenderMode = 0;
