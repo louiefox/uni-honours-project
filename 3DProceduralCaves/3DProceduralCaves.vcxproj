@@ -180,6 +180,16 @@
     <ClInclude Include="src\tunnel_intersection_mesh.h" />
     <ClInclude Include="src\tunnel_mesh.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\flat_fragment_shader.fs" />
+    <None Include="assets\shaders\flat_vertex_shader.vs" />
+    <None Include="assets\shaders\lightsource_fragment_shader.fs" />
+    <None Include="assets\shaders\lightsource_vertex_shader.vs" />
+    <None Include="assets\shaders\line_fragment_shader.fs" />
+    <None Include="assets\shaders\line_vertex_shader.vs" />
+    <None Include="assets\shaders\textured_fragment_shader.fs" />
+    <None Include="assets\shaders\textured_vertex_shader.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

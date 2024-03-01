@@ -19,6 +19,9 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{09ce236c-51d6-4cd4-8ba5-7a50de7d2f18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\shaders">
+      <UniqueIdentifier>{140f3eec-d1cb-4e24-a879-a7bbc7e3c248}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\3DProceduralCaves.cpp">
@@ -131,5 +134,31 @@
     <ClInclude Include="imgui\imgui.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\lightsource_fragment_shader.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\lightsource_vertex_shader.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\line_fragment_shader.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\line_vertex_shader.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\flat_fragment_shader.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\flat_vertex_shader.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\textured_fragment_shader.fs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\textured_vertex_shader.vs">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

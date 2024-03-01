@@ -36,6 +36,7 @@ Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 int proceduralStage = 2;
 int preBlurSplitting = 2;
 int postBlurSplitting = 1;
+int shaderRenderMode = 0;
 
 bool showMeshHighlight = false;
 int currentMeshHighlight = 0;
@@ -110,9 +111,9 @@ int main()
 	glfwSetScrollCallback(window, scroll_callback);
 
 	// Create shader
-	Shader shaderProgram = Shader("assets/shaders/vertex_shader.vs", "assets/shaders/fragment_shader.fs");
+	Shader shaderProgram = Shader("assets/shaders/textured_vertex_shader.vs", "assets/shaders/textured_fragment_shader.fs");
 	Shader lineShaderProgram = Shader("assets/shaders/line_vertex_shader.vs", "assets/shaders/line_fragment_shader.fs");
-	Shader lightingShaderProgram = Shader("assets/shaders/lighting_vertex_shader.vs", "assets/shaders/lighting_fragment_shader.fs");
+	Shader flatShaderProgram = Shader("assets/shaders/flat_vertex_shader.vs", "assets/shaders/flat_fragment_shader.fs");
 	Shader lightSrcShaderProgram = Shader("assets/shaders/lightsource_vertex_shader.vs", "assets/shaders/lightsource_fragment_shader.fs");
 
 	// Create rock texture
@@ -244,15 +245,21 @@ int main()
 		glm::mat4 projection = glm::perspective(glm::radians(viewCamera.getFOV()), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f); // projection matrix using perspective
 		//shaderProgram.setMat4("projection", projection);
 
-		// lighting shader
-		lightingShaderProgram.use();
-		lightingShaderProgram.setVec3("objectColor", 1.0f, 0.4f, 0.4f);
-		lightingShaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShaderProgram.setVec3("lightPos", lightSrcPos.x, lightSrcPos.y, lightSrcPos.z);
-		lightingShaderProgram.setVec3("viewPos", viewCamera.getPosition().x, viewCamera.getPosition().y, viewCamera.getPosition().z);
+		Shader& mainShader = shaderRenderMode == 0 ? shaderProgram : flatShaderProgram;
 
-		lightingShaderProgram.setMat4("view", view);
-		lightingShaderProgram.setMat4("projection", projection);
+		// lighting shader
+		mainShader.use();
+		mainShader.setVec3("objectColor", 1.0f, 0.4f, 0.4f);
+		mainShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		mainShader.setVec3("lightPos", lightSrcPos.x, lightSrcPos.y, lightSrcPos.z);
+		mainShader.setVec3("viewPos", viewCamera.getPosition().x, viewCamera.getPosition().y, viewCamera.getPosition().z);
+
+		mainShader.setMat4("view", view);
+		mainShader.setMat4("projection", projection);
+
+		// Textures - bind container texture to first sampler
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, rockTexture.ID);
 
 		// Draw planes
 		if (proceduralStage >= 2)
@@ -279,7 +286,7 @@ int main()
 				model = glm::scale(model, tunnelMesh->GetScale());
 				rotateByDegrees(model, tunnelMesh->GetRotation());
 
-				lightingShaderProgram.setMat4("model", model);
+				mainShader.setMat4("model", model);
 				tunnelMesh->draw();
 			}			
 		}
@@ -492,28 +499,48 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 	if (ImGui::Button("Regenerate Current"))
 		caveGenerator.ReGenerateCurrent();	
 	
+	ImGui::SameLine();
 	if (ImGui::Button("Generate Next"))
 		caveGenerator.GenerateNext();
 
 	//ImGui::ProgressBar(0.5f);
 
-	// Render modes
+	// Polygon modes
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Polygon render modes:");
 
 	if (ImGui::Button("0 - Fill"))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	
 	
+	ImGui::SameLine();
 	if (ImGui::Button("1 - Line"))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	
 	
+	ImGui::SameLine();
 	if (ImGui::Button("2 - Point"))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
+	// Shading modes
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Render modes:");
+
+	if (ImGui::Button("0 - Textured"))
+		shaderRenderMode = 0;
+
+	ImGui::SameLine();
+	if (ImGui::Button("1 - Smooth Shading"))
+		shaderRenderMode = 1;
+
+	ImGui::SameLine();
+	if (ImGui::Button("2 - Flat Shading"))
+		shaderRenderMode = 2;
+
 	// Other stuff
-	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Other stuff:");
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Tunnel section debug:");
 
 	ImGui::Checkbox("Highlight tunnel mesh", &showMeshHighlight);
 	ImGui::SliderInt("Mesh ID", &currentMeshHighlight, 0, caveGenerator.tunnelMeshes.size() - 1);
+
+	// Lighting
+	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Lighting");
 
 	ImGui::Checkbox("Show light source", &showLightingTest);
 	ImGui::Checkbox("Show normal lines", &showNormalLines);
