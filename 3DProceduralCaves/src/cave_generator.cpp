@@ -1,6 +1,7 @@
 #include "cave_generator.h"
 
 #include <vector>
+#include <unordered_map>
 
 #include "line.h"
 #include "tunnel_mesh.h"
@@ -176,6 +177,8 @@ void CaveGenerator::UpdateDraw()
 			mesh->generatePerlinNoise();
 	}
 
+	calculateMeshNormals();
+
 	for (TunnelMesh* mesh : tunnelMeshes)
 		mesh->generate();
 }
@@ -188,4 +191,45 @@ void CaveGenerator::SetAdjustAngle(float newAdjustAngle)
 const glm::vec2& CaveGenerator::getLineEndPos(glm::vec2 startPos, float radians)
 {
 	return glm::vec2(startPos.x + (lineLength * std::cos(radians)), startPos.y + (lineLength * std::sin(radians)));
+}
+
+void CaveGenerator::calculateMeshNormals()
+{
+	std::unordered_map<glm::vec3, glm::vec3, Vec3KeyFuncs, Vec3KeyFuncs> vertexNormals; // stores each unique vertex
+
+	for (TunnelMesh* mesh : tunnelMeshes)
+	{
+		mesh->calculateNormals();
+
+		const glm::mat4 transformMat = mesh->getWorldMatrix();
+		for (const Vertex& vertex : mesh->getMesh().getVertices())
+		{
+			const glm::vec3 vertexWorldPos = mesh->transformVecByMatrix(vertex.Position, transformMat);
+			vertexNormals[vertexWorldPos] += vertex.Normal;
+		}
+	}
+
+	// normalize normals
+	for (auto const& value : vertexNormals)
+	{
+		vertexNormals[value.first] = glm::normalize(value.second);
+	}
+
+	std::cout << vertexNormals.size() << std::endl;
+
+	// update mesh normals
+	for (TunnelMesh* mesh : tunnelMeshes)
+	{
+		std::vector<Vertex>& meshVertices = mesh->getMesh().getVertices();
+
+		const glm::mat4 transformMat = mesh->getWorldMatrix();
+		for (int i = 0; i < meshVertices.size(); i++)
+		{
+			const glm::vec3 vertexWorldPos = mesh->transformVecByMatrix(meshVertices[i].Position, transformMat);
+			meshVertices[i].Normal = vertexNormals[vertexWorldPos];
+		}
+
+		// create normal lines
+		mesh->createNormalLines();
+	}
 }

@@ -38,4 +38,5 @@ private:
 	float postBlurSplitting = 1;
 
 	const glm::vec2& getLineEndPos(glm::vec2 startPos, float radians);
+	void calculateMeshNormals();
 };

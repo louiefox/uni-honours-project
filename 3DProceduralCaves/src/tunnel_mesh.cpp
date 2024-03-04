@@ -68,7 +68,7 @@ void TunnelMesh::generatePerlinNoise()
 
 void TunnelMesh::generate()
 {
-	mMesh.calculateNormals();
+	//mMesh.calculateNormals();
 	mMesh.generate();
 }
 
@@ -80,11 +80,6 @@ void TunnelMesh::draw()
 void TunnelMesh::drawNormalLines()
 {
 	mMesh.drawNormalLines();
-}
-
-const Mesh& TunnelMesh::getMesh() const
-{
-	return mMesh;
 }
 
 void TunnelMesh::setPreviousTunnelMesh(TunnelMesh* tunnelMesh)
@@ -317,7 +312,6 @@ void TunnelMesh::pushBlurredVertices()
 void TunnelMesh::applyPerlinNoise()
 {
 	splitMeshTriangles(2);
-	mMesh.calculateNormals();
 
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise perlin{ seed };
@@ -331,17 +325,6 @@ void TunnelMesh::applyPerlinNoise()
 	for (int i = 0; i < currentVertices.size(); i++)
 	{
 		glm::vec3 vertexPosition = transformVecByMatrix(currentVertices[i].Position, transformMat);
-
-		//double noise = perlin.noise2D_01(vertexPosition.x * 5.0, vertexPosition.z * 5.0);
-		//double noise2 = perlin.noise2D_01(vertexPosition.x * 25.0, vertexPosition.z * 25.0);
-		////if (vertexPosition.x > -0.5 && vertexPosition.x < 0.5)
-		//{
-		//	//noise = perlin.noise2D_01((GetPosition().y + vertexPosition.y) * 5.0, (GetPosition().z + vertexPosition.z) * 5.0);
-		//	vertexPosition.y -= noise * 0.1;
-		//	vertexPosition.y -= noise2 * 0.05;
-		//}
-
-		//vertexPosition -= currentVertices[i].Normal * (float)noise * 0.5f;
 
 		float noise = perlin.noise3D(vertexPosition.x * 3.0, vertexPosition.y * 3.0, vertexPosition.z * 3.0);
 		vertexPosition.x += noise * 0.05;
@@ -358,7 +341,7 @@ void TunnelMesh::applyPerlinNoise()
 		vertexPosition.y += noise3 * 0.3;
 		vertexPosition.z += noise3 * 0.5;
 
-		newVertices.push_back({ transformVecByMatrix(vertexPosition, inverseTransformMat), currentVertices[i].TextureCoords, currentVertices[i].Normal });
+		newVertices.push_back({ transformVecByMatrix(vertexPosition, inverseTransformMat), currentVertices[i].TextureCoords });
 	}
 
 	mMesh.setVertices(newVertices);

@@ -71,7 +71,6 @@ std::vector<Vertex> Mesh::getAllVertices() const
 	return allVertices;
 }
 
-// TODO: Calculate normals based on surrounding tunnel meshes
 glm::vec3 Mesh::calculateNormalFace(const glm::vec3& vec1, const glm::vec3& vec2, const glm::vec3& vec3)
 {
 	// cross product of any 2 edges of the face
@@ -82,9 +81,7 @@ void Mesh::calculateNormals()
 {
 	// clear normals incase function is ran again?
 	for (int i = 0; i < mVertices.size(); i++)
-	{
 		mVertices[i].Normal = glm::vec3(0.0f);
-	}
 
 	// loop through each face in the mesh (every 3 indicies)
 	for (int i = 0; i < mIndicies.size(); i += 3)
@@ -98,14 +95,10 @@ void Mesh::calculateNormals()
 		mVertices[index2].Normal += normal;
 		mVertices[index3].Normal += normal;
 	}
+}
 
-	// normalize normals
-	for (int i = 0; i < mVertices.size(); i++)
-	{
-		mVertices[i].Normal = glm::normalize(mVertices[i].Normal);
-	}
-
-	// create normal lines
+void Mesh::createNormalLines()
+{
 	for (int i = 0; i < mVertices.size(); i++) 
 	{
 		glm::vec3 startPos = mVertices[i].Position;

@@ -249,7 +249,7 @@ int main()
 
 		// lighting shader
 		mainShader.use();
-		mainShader.setVec3("objectColor", 0.2f, 0.2f, 0.2f);
+		mainShader.setVec3("objectColor", 1.0f, 0.4f, 0.4f);
 		mainShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		mainShader.setVec3("lightPos", lightSrcPos.x, lightSrcPos.y, lightSrcPos.z);
 		mainShader.setVec3("viewPos", viewCamera.getPosition().x, viewCamera.getPosition().y, viewCamera.getPosition().z);
@@ -348,6 +348,10 @@ int main()
 
 	// Cleanup
 	glDeleteProgram(shaderProgram.ID);
+	glDeleteProgram(flatShaderProgram.ID);
+	glDeleteProgram(smoothShaderProgram.ID);
+	glDeleteProgram(lineShaderProgram.ID);
+	glDeleteProgram(lightSrcShaderProgram.ID);
 
 	// Cleanup ImGui
 	ImGui_ImplOpenGL3_Shutdown();

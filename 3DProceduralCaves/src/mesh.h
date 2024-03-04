@@ -23,6 +23,8 @@ public:
 	std::vector<Vertex>& getVertices() { return mVertices; }
 	void setVertices(const std::vector<Vertex>& newVertices);
 
+	const std::vector<unsigned int>& getIndicies() const { return mIndicies; }
+
 	void addVertex(const glm::vec3& position, const glm::vec2 uvCoords);
 	int findVertex(const glm::vec3& position, const glm::vec2 uvCoords);
 
@@ -34,6 +36,7 @@ public:
 
 	void generate();
 	void calculateNormals();
+	void createNormalLines();
 	void draw();
 	void drawNormalLines();
 
