@@ -12,7 +12,7 @@ public:
 	~TunnelIntersectionMesh();
 
 private:
-	const glm::vec2 getLineEndPos(const glm::vec2& startPos, const float radians, const float lineLength);
+	glm::vec2 getLineEndPos(const glm::vec2& startPos, const float radians, const float lineLength);
 	
 	void createFloor(const float Y_POS, const float angle);
 	void createWall(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight);

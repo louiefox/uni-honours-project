@@ -159,14 +159,14 @@ void CaveGenerator::UpdateDraw()
 	for (TunnelMesh* mesh : tunnelMeshes)
 		std::cout << mesh->getMesh().getVertices().size() << std::endl;
 
-	for (int i = 0; i < 2; i++)
-	{
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->generateGeometryBlurring(tunnelMeshes);
+	//for (int i = 0; i < 2; i++)
+	//{
+	//	for (TunnelMesh* mesh : tunnelMeshes)
+	//		mesh->generateGeometryBlurring(tunnelMeshes);
 
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->pushGeometryBlurring();		
-	}
+	//	for (TunnelMesh* mesh : tunnelMeshes)
+	//		mesh->pushGeometryBlurring();		
+	//}
 
 	for (TunnelMesh* mesh : tunnelMeshes)
 		mesh->splitMeshTriangles(postBlurSplitting);
