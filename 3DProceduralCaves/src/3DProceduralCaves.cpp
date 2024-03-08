@@ -261,7 +261,7 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, rockTexture.ID);
 
-		// Draw planes
+		// Draw meshes
 		if (proceduralStage >= 2)
 		{
 			TunnelMesh* highlightedMesh = caveGenerator.tunnelMeshes[currentMeshHighlight];
@@ -498,7 +498,7 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Generation paramaters:");
 	
 	if (ImGui::SliderFloat("Branch Angle", &floatParam, 0.0f, 90.0f))
-		caveGenerator.SetAdjustAngle(floatParam);	
+		caveGenerator.SetAdjustAngleRange(floatParam);
 	
 	if (ImGui::SliderInt("Pre Blur Splitting", &preBlurSplitting, 0, 10))
 		caveGenerator.SetPreBlurSplitting(preBlurSplitting);

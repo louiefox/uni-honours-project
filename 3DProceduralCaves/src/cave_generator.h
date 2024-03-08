@@ -26,14 +26,14 @@ public:
 	void GenerateNext();
 	void ReGenerateCurrent();
 	void UpdateDraw();
-	void SetAdjustAngle(float newAdjustAngle);
+	void SetAdjustAngleRange(float newRange) { adjustAngleRange = newRange; }
 	void SetPreBlurSplitting(int newValue) { preBlurSplitting = newValue; }
 	void SetPostBlurSplitting(int newValue) { postBlurSplitting = newValue; }
 
 private:
 	std::string CurrentString = "X";
 	float lineLength = 1.0f;
-	float adjustAngle = 55.0f;
+	float adjustAngleRange = 45.0f;
 	float preBlurSplitting = 2;
 	float postBlurSplitting = 1;
 

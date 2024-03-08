@@ -331,7 +331,7 @@ void TunnelMesh::applyPerlinNoise()
 		vertexPosition.y += noise * 0.05;
 		vertexPosition.z += noise * 0.05;		
 		
-		float noise2 = perlin.noise3D(vertexPosition.x * 10.0, vertexPosition.y * 10.0, vertexPosition.z * 10.0);
+		float noise2 = perlin.noise3D(vertexPosition.x * 20.0, vertexPosition.y * 20.0, vertexPosition.z * 20.0);
 		vertexPosition.x += noise2 * 0.02;
 		vertexPosition.y += noise2 * 0.02;
 		vertexPosition.z += noise2 * 0.02;		
