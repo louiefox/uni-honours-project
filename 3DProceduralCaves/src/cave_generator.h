@@ -18,7 +18,7 @@ public:
 	std::vector<TunnelMesh*> tunnelMeshes;
 	std::vector<TunnelMesh*> tunnelIntersectionMeshes;
 	int currentIteration = 0;
-	int proceduralStage = 0;
+	int proceduralStage = 4;
 
 	CaveGenerator();
 	~CaveGenerator();

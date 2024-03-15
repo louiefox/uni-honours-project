@@ -57,11 +57,11 @@ void TunnelIntersectionMesh::createFloor(const float Y_POS, const float angle)
 {
 	std::vector<Vertex> newVertices;
 
-	pushVertexToVector(newVertices, glm::vec3(-0.5, Y_POS, 0.0), glm::vec2(0.0, 0.0)); // top left
+	pushVertexToVector(newVertices, glm::vec3(-0.5, Y_POS, 0.0), glm::vec2(1.0, 1.0)); // top left
 	pushVertexToVector(newVertices, glm::vec3(0.5, Y_POS, 0.0), glm::vec2(1.0, 0.0)); // top right
-	pushVertexToVector(newVertices, glm::vec3(0.5, Y_POS, 1.0), glm::vec2(1.0, 1.0)); // bottom right
-	pushVertexToVector(newVertices, glm::vec3(-0.5, Y_POS, 0.0), glm::vec2(0.0, 0.0)); // top left
-	pushVertexToVector(newVertices, glm::vec3(0.5, Y_POS, 1.0), glm::vec2(1.0, 1.0)); // bottom right
+	pushVertexToVector(newVertices, glm::vec3(0.5, Y_POS, 1.0), glm::vec2(0.0, 0.0)); // bottom right
+	pushVertexToVector(newVertices, glm::vec3(-0.5, Y_POS, 0.0), glm::vec2(1.0, 1.0)); // top left
+	pushVertexToVector(newVertices, glm::vec3(0.5, Y_POS, 1.0), glm::vec2(0.0, 0.0)); // bottom right
 	pushVertexToVector(newVertices, glm::vec3(-0.5, Y_POS, 1.0), glm::vec2(0.0, 1.0)); // bottom left
 
 	const glm::vec2 START_POS = glm::vec2(0.0, 0.0);

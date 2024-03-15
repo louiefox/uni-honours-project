@@ -119,7 +119,7 @@ void TunnelMesh::splitMeshTriangles(int timesToSplit)
 		for (int tri = 0; tri < currentVertices.size(); tri += 3)
 		{
 			// Split triangle and add to new vertices vector
-			std::vector<Vertex> splitVertices = splitTriangle(currentVertices[tri].Position, currentVertices[tri + 1].Position, currentVertices[tri + 2].Position);
+			std::vector<Vertex> splitVertices = splitTriangle(currentVertices[tri], currentVertices[tri + 1], currentVertices[tri + 2]);
 			for (int i = 0; i < splitVertices.size(); i++)
 			{
 				newVertices.push_back(splitVertices[i]);
@@ -133,33 +133,37 @@ void TunnelMesh::splitMeshTriangles(int timesToSplit)
 	mMesh.setVertices(currentVertices);
 }
 
-std::vector<Vertex> TunnelMesh::splitTriangle(glm::vec3 vertex1, glm::vec3 vertex2, glm::vec3 vertex3)
+std::vector<Vertex> TunnelMesh::splitTriangle(const Vertex& vertex1, const Vertex& vertex2, const Vertex& vertex3)
 {
 	std::vector<Vertex> newVertices;
 
-	glm::vec3 midPoint1 = vertex1 + ((vertex2 - vertex1) / 2.0f);
-	glm::vec3 midPoint2 = vertex2 + ((vertex3 - vertex2) / 2.0f);
-	glm::vec3 midPoint3 = vertex3 + ((vertex1 - vertex3) / 2.0f);
+	glm::vec3 midPoint1 = vertex1.Position + ((vertex2.Position - vertex1.Position) / 2.0f);
+	glm::vec3 midPoint2 = vertex2.Position + ((vertex3.Position - vertex2.Position) / 2.0f);
+	glm::vec3 midPoint3 = vertex3.Position + ((vertex1.Position - vertex3.Position) / 2.0f);	
+	
+	glm::vec2 texMidPoint1 = vertex1.TextureCoords + ((vertex2.TextureCoords - vertex1.TextureCoords) / 2.0f);
+	glm::vec2 texMidPoint2 = vertex2.TextureCoords + ((vertex3.TextureCoords - vertex2.TextureCoords) / 2.0f);
+	glm::vec2 texMidPoint3 = vertex3.TextureCoords + ((vertex1.TextureCoords - vertex3.TextureCoords) / 2.0f);
 
 	// center
-	newVertices.push_back({ midPoint1, glm::vec2(0.0, 0.0) });
-	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.0) });
-	newVertices.push_back({ midPoint3, glm::vec2(1.0, 1.0) });
+	newVertices.push_back({ midPoint1, texMidPoint1 });
+	newVertices.push_back({ midPoint2, texMidPoint2 });
+	newVertices.push_back({ midPoint3, texMidPoint3 });
 
 	// vertex1
-	newVertices.push_back({ vertex1, glm::vec2(0.0, 0.0) });
-	newVertices.push_back({ midPoint1, glm::vec2(1.0, 0.0) });
-	newVertices.push_back({ midPoint3, glm::vec2(1.0, 1.0) });
+	newVertices.push_back({ vertex1.Position, vertex1.TextureCoords });
+	newVertices.push_back({ midPoint1, texMidPoint1 });
+	newVertices.push_back({ midPoint3, texMidPoint3 });
 
 	// vertex2
-	newVertices.push_back({ midPoint1, glm::vec2(0.0, 0.0) });
-	newVertices.push_back({ vertex2, glm::vec2(1.0, 0.0) });
-	newVertices.push_back({ midPoint2, glm::vec2(1.0, 1.0) });
+	newVertices.push_back({ midPoint1, texMidPoint1 });
+	newVertices.push_back({ vertex2.Position, vertex2.TextureCoords });
+	newVertices.push_back({ midPoint2, texMidPoint2 });
 
 	// vertex3
-	newVertices.push_back({ midPoint3, glm::vec2(0.0, 0.0) });
-	newVertices.push_back({ midPoint2, glm::vec2(1.0, 0.0) });
-	newVertices.push_back({ vertex3, glm::vec2(1.0, 1.0) });
+	newVertices.push_back({ midPoint3, texMidPoint3 });
+	newVertices.push_back({ midPoint2, texMidPoint2 });
+	newVertices.push_back({ vertex3.Position, vertex3.TextureCoords });
 
 	return newVertices;
 }

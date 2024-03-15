@@ -76,7 +76,7 @@ protected:
 	std::vector<Vertex> mTempBlurredVertices;
 
 	void createQuad(const glm::vec3 topLeft, const glm::vec3 topRight, const glm::vec3 bottomLeft, const glm::vec3 bottomRight);
-	std::vector<Vertex> splitTriangle(glm::vec3 vertex1, glm::vec3 vertex2, glm::vec3 vertex3);
+	std::vector<Vertex> splitTriangle(const Vertex& vertex1, const Vertex& vertex2, const Vertex& vertex3);
 	void addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, const glm::vec3& worldPosition, const glm::vec3& worldRotation);
 
 	void applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes);
