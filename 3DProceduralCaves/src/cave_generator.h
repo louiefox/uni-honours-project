@@ -9,6 +9,7 @@ struct LSystemValue
 {
 	glm::vec2 Position;
 	float Rotation;
+	float AdjustAngle;
 };
 
 class CaveGenerator

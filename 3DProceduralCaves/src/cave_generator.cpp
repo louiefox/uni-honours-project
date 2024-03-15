@@ -36,7 +36,7 @@ void CaveGenerator::GenerateNext()
 			case 'F':
 			{
 				float chance = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-				nextString += chance > 0.75f ? "FFF" : chance > 0.5f ? "FF" : "F";
+				nextString += "F";// chance > 0.75f ? "FFFF" : chance > 0.5f ? "FF" : "F";
 				break;
 			}
 			default:
@@ -75,20 +75,18 @@ void CaveGenerator::UpdateDraw()
 
 	std::srand(std::time(nullptr));
 
-	LSystemValue currentValue = LSystemValue{ glm::vec2(0.0f, 0.0f), 0.0f };
+	LSystemValue currentValue = LSystemValue{ glm::vec2(0.0f, 0.0f), 0.0f, 0.0f };
 	std::vector<LSystemValue> valueStack;
 	for (int i = 0; i < CurrentString.length(); i++)
 	{
 		char previousCharacter = i > 0 ? CurrentString[i - 1] : ' ';
 		char previousPreviousCharacter = i > 1 ? CurrentString[i - 2] : ' ';
 		char nextCharacter = (i + 1) < CurrentString.length() ? CurrentString[i + 1] : ' ';
-		float adjustAngle = adjustAngleRange;
 
 		switch (CurrentString[i])
 		{
 			case 'F':
 			{
-				//currentValue.Rotation += -10 + (std::rand() % 20);
 				const glm::vec2 LINE_END_POS = getLineEndPos(currentValue.Position, glm::radians(currentValue.Rotation));
 
 				// create new line mesh, swap x/y around and invert z so tree is facing forward
@@ -97,9 +95,9 @@ void CaveGenerator::UpdateDraw()
 				// place tunnel building blocks
 				if (nextCharacter == '[') // place intersection if start of branch
 				{
-					//adjustAngle = -adjustAngleRange + (std::rand() % (int)(2.0f * adjustAngleRange));
+					currentValue.AdjustAngle = 35.0f + (std::rand() % (int)(20.0f));
 
-					TunnelIntersectionMesh* tunnelPiece = new TunnelIntersectionMesh(adjustAngle);
+					TunnelIntersectionMesh* tunnelPiece = new TunnelIntersectionMesh(currentValue.AdjustAngle);
 					tunnelPiece->SetPosition(glm::vec3(LINE_END_POS.y, 0.0f, -LINE_END_POS.x));
 					tunnelPiece->SetRotation(glm::vec3(0.0, -currentValue.Rotation, 0.0));
 
@@ -148,10 +146,10 @@ void CaveGenerator::UpdateDraw()
 				break;
 			}
 			case '-':
-				currentValue.Rotation -= adjustAngle;
+				currentValue.Rotation -= currentValue.AdjustAngle;
 				break;
 			case '+':
-				currentValue.Rotation += adjustAngle;
+				currentValue.Rotation += currentValue.AdjustAngle;
 				break;
 			case '[':
 				valueStack.push_back(currentValue);
