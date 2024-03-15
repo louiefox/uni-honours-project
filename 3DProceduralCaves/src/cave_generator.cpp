@@ -167,22 +167,22 @@ void CaveGenerator::UpdateDraw()
 	for (TunnelMesh* mesh : tunnelMeshes)
 		mesh->splitMeshTriangles(preBlurSplitting);	
 	
-	for (TunnelMesh* mesh : tunnelMeshes)
-		std::cout << mesh->getMesh().getVertices().size() << std::endl;
-
-	for (int i = 0; i < 2; i++)
+	if (proceduralStage >= 3)
 	{
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->generateGeometryBlurring(tunnelMeshes);
+		for (int i = 0; i < 2; i++)
+		{
+			for (TunnelMesh* mesh : tunnelMeshes)
+				mesh->generateGeometryBlurring(tunnelMeshes);
 
-		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->pushGeometryBlurring();		
+			for (TunnelMesh* mesh : tunnelMeshes)
+				mesh->pushGeometryBlurring();
+		}
 	}
 
 	for (TunnelMesh* mesh : tunnelMeshes)
 		mesh->splitMeshTriangles(postBlurSplitting);
 
-	if (tempDevEnablePerlin)
+	if (proceduralStage >= 4)
 	{
 		for (TunnelMesh* mesh : tunnelMeshes)
 			mesh->generatePerlinNoise();
@@ -216,9 +216,12 @@ void CaveGenerator::calculateMeshNormals()
 	}
 
 	// normalize normals
+	drawLines.clear();
 	for (auto const& value : vertexNormals)
 	{
 		vertexNormals[value.first] = glm::normalize(value.second);
+
+		drawLines.push_back(new Line(value.first, value.first + value.second * 0.1f));
 	}
 
 	std::cout << vertexNormals.size() << std::endl;

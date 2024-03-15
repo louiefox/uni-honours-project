@@ -33,7 +33,7 @@ bool mouseInputEnabled = true;
 
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-int proceduralStage = 2;
+int proceduralStage = 4;
 int preBlurSplitting = 2;
 int postBlurSplitting = 1;
 int shaderRenderMode = 1;
@@ -443,14 +443,15 @@ void switchProceduralLevel(CaveGenerator& caveGenerator, int newLevel)
 {
 	proceduralStage = newLevel;
 
-	caveGenerator.tempDevEnablePerlin = proceduralStage == 3;
+	caveGenerator.proceduralStage = proceduralStage;
 	caveGenerator.ReGenerateCurrent();
 }
 
-std::array<std::string, 4> proceduralLevelNames = {
+std::array<std::string, 5> proceduralLevelNames = {
 	"Nothing",
 	"LSystem",
 	"Meshes",
+	"Smoothing",
 	"Perlin Noise"
 };
 

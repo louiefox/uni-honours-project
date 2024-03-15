@@ -18,7 +18,7 @@ public:
 	std::vector<TunnelMesh*> tunnelMeshes;
 	std::vector<TunnelMesh*> tunnelIntersectionMeshes;
 	int currentIteration = 0;
-	bool tempDevEnablePerlin = false;
+	int proceduralStage = 0;
 
 	CaveGenerator();
 	~CaveGenerator();
