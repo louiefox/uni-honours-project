@@ -23,7 +23,8 @@ CaveGenerator::~CaveGenerator()
 
 void CaveGenerator::GenerateNext()
 {
-	std::srand(randomSeed);
+	// Should only seed on full regenerate
+	// std::srand(randomSeed);
 
 	std::string nextString = "";
 	for (int i = 0; i < CurrentString.length(); i++)
@@ -36,7 +37,7 @@ void CaveGenerator::GenerateNext()
 			case 'F':
 			{
 				float chance = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-				nextString += "F";// chance > 0.75f ? "FFFF" : chance > 0.5f ? "FF" : "F";
+				nextString += chance > 0.75f ? "FFFF" : chance > 0.5f ? "FF" : "F";
 				break;
 			}
 			default:
@@ -214,12 +215,12 @@ void CaveGenerator::calculateMeshNormals()
 	}
 
 	// normalize normals
-	drawLines.clear();
+	//drawLines.clear();
 	for (auto const& value : vertexNormals)
 	{
 		vertexNormals[value.first] = glm::normalize(value.second);
 
-		drawLines.push_back(new Line(value.first, value.first + value.second * 0.1f));
+		//drawLines.push_back(new Line(value.first, value.first + value.second * 0.1f));
 	}
 
 	std::cout << vertexNormals.size() << std::endl;
