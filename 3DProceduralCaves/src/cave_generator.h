@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "line.h"
 #include "tunnel_mesh.h"
@@ -27,12 +28,14 @@ public:
 	void GenerateNext();
 	void ReGenerateCurrent();
 	void UpdateDraw();
+	void SetRandomSeed(std::string newSeed) { randomSeed = std::stoi(newSeed); }
 	void SetAdjustAngleRange(float newRange) { adjustAngleRange = newRange; }
 	void SetPreBlurSplitting(int newValue) { preBlurSplitting = newValue; }
 	void SetPostBlurSplitting(int newValue) { postBlurSplitting = newValue; }
 
 private:
 	std::string CurrentString = "X";
+	unsigned int randomSeed = 0;
 	float lineLength = 1.0f;
 	float adjustAngleRange = 45.0f;
 	float preBlurSplitting = 2;

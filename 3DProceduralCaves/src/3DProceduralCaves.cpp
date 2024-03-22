@@ -37,6 +37,7 @@ int proceduralStage = 4;
 int preBlurSplitting = 2;
 int postBlurSplitting = 1;
 int shaderRenderMode = 1;
+char randomSeed[255] = "cheese";
 
 bool showMeshHighlight = false;
 int currentMeshHighlight = 0;
@@ -130,6 +131,11 @@ int main()
 	lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
 	CaveGenerator caveGenerator = CaveGenerator();
+
+	unsigned int currentTime = static_cast<unsigned int>(std::time(NULL));
+	strcpy_s(randomSeed, std::to_string(currentTime).c_str());
+	caveGenerator.SetRandomSeed(randomSeed);
+
 	caveGenerator.GenerateNext();
 	caveGenerator.GenerateNext();
 
@@ -505,6 +511,9 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 	
 	if (ImGui::SliderInt("Post Blur Splitting", &postBlurSplitting, 0, 10))
 		caveGenerator.SetPostBlurSplitting(postBlurSplitting);
+
+	if (ImGui::InputText("Random Seed", randomSeed, 255))
+		caveGenerator.SetRandomSeed(randomSeed);
 
 	if (ImGui::Button("Regenerate Current"))
 		caveGenerator.ReGenerateCurrent();	

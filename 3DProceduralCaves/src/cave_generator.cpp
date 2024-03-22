@@ -23,7 +23,7 @@ CaveGenerator::~CaveGenerator()
 
 void CaveGenerator::GenerateNext()
 {
-	std::srand(std::time(nullptr));
+	std::srand(randomSeed);
 
 	std::string nextString = "";
 	for (int i = 0; i < CurrentString.length(); i++)
@@ -73,7 +73,7 @@ void CaveGenerator::UpdateDraw()
 
 	drawLines = {};
 
-	std::srand(std::time(nullptr));
+	std::srand(randomSeed);
 
 	LSystemValue currentValue = LSystemValue{ glm::vec2(0.0f, 0.0f), 0.0f, 0.0f };
 	std::vector<LSystemValue> valueStack;
