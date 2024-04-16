@@ -317,7 +317,7 @@ void TunnelMesh::applyPerlinNoise()
 {
 	splitMeshTriangles(2);
 
-	const siv::PerlinNoise::seed_type seed = 123456u;
+	const siv::PerlinNoise::seed_type seed = 123456u; // set perlin seed
 	const siv::PerlinNoise perlin{ seed };
 
 	const std::vector<Vertex>& currentVertices = mMesh.getAllVertices();

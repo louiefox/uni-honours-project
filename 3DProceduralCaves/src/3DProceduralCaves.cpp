@@ -37,7 +37,7 @@ int proceduralStage = 4;
 int preBlurSplitting = 2;
 int postBlurSplitting = 1;
 int shaderRenderMode = 1;
-char randomSeed[255] = "cheese";
+char randomSeed[255] = "";
 
 bool showMeshHighlight = false;
 int currentMeshHighlight = 0;

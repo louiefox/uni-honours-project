@@ -121,17 +121,19 @@ void CaveGenerator::UpdateDraw()
 					if (previousCharacter == 'F' && (previousPreviousCharacter == '-' || previousPreviousCharacter == '+')) // Intersection previously
 					{
 						TunnelMesh* previousPiece = tunnelIntersectionMeshes[0];
+						if (previousPiece != nullptr)
+						{
+							if (previousPreviousCharacter == '-')
+							{
+								previousPiece->setNextTunnelMesh(tunnelPiece);
+							}
+							else //if (previousPreviousCharacter == '+')
+							{
+								previousPiece->setNextTunnelMesh2(tunnelPiece);
+							}
 
-						if (previousPreviousCharacter == '-')
-						{
-							previousPiece->setNextTunnelMesh(tunnelPiece);
-						}					
-						else //if (previousPreviousCharacter == '+')
-						{
-							previousPiece->setNextTunnelMesh2(tunnelPiece);
+							tunnelPiece->setPreviousTunnelMesh(previousPiece);
 						}
-
-						tunnelPiece->setPreviousTunnelMesh(previousPiece);
 					}
 					else if (previousCharacter == 'F')
 					{
