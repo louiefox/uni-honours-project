@@ -14,6 +14,8 @@ public:
 	
 	void setFOV(float newValue);
 	float getFOV();
+	float getYaw() { return yaw; }
+	float getPitch() { return pitch; }
 
 	glm::vec3 getPosition() { return cameraPos; }
 

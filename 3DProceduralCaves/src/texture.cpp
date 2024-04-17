@@ -20,6 +20,7 @@ Texture::Texture(const char* filePath)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // Make texture using image data
 		glGenerateMipmap(GL_TEXTURE_2D); // Generate them mip maps
+		HasLoaded = true;
 	}
 	else
 	{

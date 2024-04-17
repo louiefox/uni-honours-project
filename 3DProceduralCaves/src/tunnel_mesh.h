@@ -9,7 +9,6 @@
 	
 #include "mesh.h"
 #include "game_object.h"
-#include "PerlinNoise.hpp"
 
 struct comparableVec3
 {

@@ -40,6 +40,8 @@ public:
 	void draw();
 	void drawNormalLines();
 
+	bool isGenerated() { return mGenerated; }
+
 private:
 	unsigned int mVBO, mVAO, mEBO;
 	std::vector<Vertex> mVertices;
