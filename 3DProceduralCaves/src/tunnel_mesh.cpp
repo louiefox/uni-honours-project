@@ -51,9 +51,9 @@ TunnelMesh::TunnelMesh()
 
 TunnelMesh::~TunnelMesh() { }
 
-void TunnelMesh::generateGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
+void TunnelMesh::generateGeometryBlurring()
 {
-	applyGeometryBlurring(tunnelMeshes);
+	applyGeometryBlurring();
 }
 
 void TunnelMesh::pushGeometryBlurring()
@@ -178,7 +178,7 @@ void TunnelMesh::addVerticesToVector(std::vector<Vertex>& vector, const std::vec
 	}
 }
 
-void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
+void TunnelMesh::applyGeometryBlurring()
 {
 	const glm::vec3& worldPosition = GetPosition();
 	const glm::vec3& worldRotation = GetRotation();
@@ -191,29 +191,22 @@ void TunnelMesh::applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes)
 	std::vector<Vertex> tempSearchVertices;
 	addVerticesToVector(tempSearchVertices, mMesh.getAllVertices(), worldPosition, worldRotation);
 
-	//if (mPreviousTunnelMesh != nullptr)
-	//{
-	//	const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
-	//	addVerticesToVector(tempSearchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
-	//}
-
-	//if (mNextTunnelMesh != nullptr)
-	//{
-	//	const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
-	//	addVerticesToVector(tempSearchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
-	//}	
-	//
-	//if (mNextTunnelMesh2 != nullptr)
-	//{
-	//	const std::vector<Vertex>& meshVertices = mNextTunnelMesh2->getMesh().getAllVertices();
-	//	addVerticesToVector(tempSearchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
-	//}
-
-	// TEMP: Until adjacent meshes is fixed
-	for (TunnelMesh* mesh : tunnelMeshes)
+	if (mPreviousTunnelMesh != nullptr)
 	{
-		const std::vector<Vertex>& meshVertices = mesh->getMesh().getAllVertices();
-		addVerticesToVector(tempSearchVertices, meshVertices, mesh->GetPosition(), mesh->GetRotation());
+		const std::vector<Vertex>& meshVertices = mPreviousTunnelMesh->getMesh().getAllVertices();
+		addVerticesToVector(tempSearchVertices, meshVertices, mPreviousTunnelMesh->GetPosition(), mPreviousTunnelMesh->GetRotation());
+	}
+
+	if (mNextTunnelMesh != nullptr)
+	{
+		const std::vector<Vertex>& meshVertices = mNextTunnelMesh->getMesh().getAllVertices();
+		addVerticesToVector(tempSearchVertices, meshVertices, mNextTunnelMesh->GetPosition(), mNextTunnelMesh->GetRotation());
+	}	
+	
+	if (mNextTunnelMesh2 != nullptr)
+	{
+		const std::vector<Vertex>& meshVertices = mNextTunnelMesh2->getMesh().getAllVertices();
+		addVerticesToVector(tempSearchVertices, meshVertices, mNextTunnelMesh2->GetPosition(), mNextTunnelMesh2->GetRotation());
 	}
 
 	// loop through current vertices and adjust by neighbours

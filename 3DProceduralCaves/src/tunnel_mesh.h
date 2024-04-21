@@ -39,7 +39,7 @@ public:
 	TunnelMesh();
 	~TunnelMesh();
 
-	void generateGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes);
+	void generateGeometryBlurring();
 	void pushGeometryBlurring();
 	void generatePerlinNoise(unsigned int randomSeed);
 	void splitMeshTriangles(int timesToSplit);
@@ -78,7 +78,7 @@ protected:
 	std::vector<Vertex> splitTriangle(const Vertex& vertex1, const Vertex& vertex2, const Vertex& vertex3);
 	void addVerticesToVector(std::vector<Vertex>& vector, const std::vector<Vertex>& vertices, const glm::vec3& worldPosition, const glm::vec3& worldRotation);
 
-	void applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes);
+	void applyGeometryBlurring();
 	void pushBlurredVertices();
 	void applyPerlinNoise(unsigned int randomSeed);
 };

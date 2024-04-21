@@ -77,7 +77,6 @@ void CaveGenerator::UpdateDraw()
 		delete mesh;
 
 	tunnelMeshes.clear();
-	tunnelIntersectionMeshes.clear();
 
 	for (Line* line : drawLines)
 		delete line;
@@ -120,7 +119,7 @@ void CaveGenerator::UpdateDraw()
 					}
 
 					tunnelMeshes.push_back(tunnelPiece);
-					tunnelIntersectionMeshes.push_back(tunnelPiece); // Add to intersection meshes for lookup
+					currentValue.LastIntersection = tunnelPiece;
 				}
 				else if (previousCharacter != '-' && previousCharacter != '+') // place normal tunnel if not intersection
 				{
@@ -130,7 +129,7 @@ void CaveGenerator::UpdateDraw()
 
 					if (previousCharacter == 'F' && (previousPreviousCharacter == '-' || previousPreviousCharacter == '+')) // Intersection previously
 					{
-						TunnelMesh* previousPiece = tunnelIntersectionMeshes[0];
+						TunnelMesh* previousPiece = currentValue.LastIntersection;
 						if (previousPiece != nullptr)
 						{
 							if (previousPreviousCharacter == '-')
@@ -183,7 +182,7 @@ void CaveGenerator::UpdateDraw()
 		for (int i = 0; i < 2; i++)
 		{
 			for (TunnelMesh* mesh : tunnelMeshes)
-				mesh->generateGeometryBlurring(tunnelMeshes);
+				mesh->generateGeometryBlurring();
 
 			for (TunnelMesh* mesh : tunnelMeshes)
 				mesh->pushGeometryBlurring();

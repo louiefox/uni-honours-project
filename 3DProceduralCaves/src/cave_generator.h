@@ -11,6 +11,7 @@ struct LSystemValue
 	glm::vec2 Position;
 	float Rotation;
 	float AdjustAngle;
+	TunnelMesh* LastIntersection;
 };
 
 class CaveGenerator
@@ -18,7 +19,6 @@ class CaveGenerator
 public:
 	std::vector<Line*> drawLines;
 	std::vector<TunnelMesh*> tunnelMeshes;
-	std::vector<TunnelMesh*> tunnelIntersectionMeshes;
 	int currentIteration = 0;
 	int proceduralStage = 4;
 
