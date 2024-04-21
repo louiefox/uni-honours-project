@@ -76,12 +76,13 @@ void CaveGenerator::UpdateDraw()
 	for (TunnelMesh* mesh : tunnelMeshes)
 		delete mesh;
 
-	tunnelMeshes = {};
+	tunnelMeshes.clear();
+	tunnelIntersectionMeshes.clear();
 
 	for (Line* line : drawLines)
 		delete line;
 
-	drawLines = {};
+	drawLines.clear();
 
 	std::srand(randomSeed);
 
@@ -195,7 +196,7 @@ void CaveGenerator::UpdateDraw()
 	if (proceduralStage >= 4)
 	{
 		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->generatePerlinNoise();
+			mesh->generatePerlinNoise(randomSeed);
 	}
 
 	calculateMeshNormals();

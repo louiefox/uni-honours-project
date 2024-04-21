@@ -61,9 +61,9 @@ void TunnelMesh::pushGeometryBlurring()
 	pushBlurredVertices();
 }
 
-void TunnelMesh::generatePerlinNoise()
+void TunnelMesh::generatePerlinNoise(unsigned int randomSeed)
 {
-	applyPerlinNoise();
+	applyPerlinNoise(randomSeed);
 }
 
 void TunnelMesh::generate()
@@ -313,11 +313,11 @@ void TunnelMesh::pushBlurredVertices()
 	mMesh.setVertices(mTempBlurredVertices);
 }
 
-void TunnelMesh::applyPerlinNoise()
+void TunnelMesh::applyPerlinNoise(unsigned int randomSeed)
 {
 	splitMeshTriangles(2);
 
-	const siv::PerlinNoise::seed_type seed = 123456u; // set perlin seed
+	const siv::PerlinNoise::seed_type seed = randomSeed;
 	const siv::PerlinNoise perlin{ seed };
 
 	const std::vector<Vertex>& currentVertices = mMesh.getAllVertices();

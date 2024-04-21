@@ -41,7 +41,7 @@ public:
 
 	void generateGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes);
 	void pushGeometryBlurring();
-	void generatePerlinNoise();
+	void generatePerlinNoise(unsigned int randomSeed);
 	void splitMeshTriangles(int timesToSplit);
 	void calculateNormals() { mMesh.calculateNormals(); }
 	void createNormalLines() { mMesh.createNormalLines(); }
@@ -80,5 +80,5 @@ protected:
 
 	void applyGeometryBlurring(std::vector<TunnelMesh*> tunnelMeshes);
 	void pushBlurredVertices();
-	void applyPerlinNoise();
+	void applyPerlinNoise(unsigned int randomSeed);
 };

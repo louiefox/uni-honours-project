@@ -520,7 +520,15 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 	
 	ImGui::SameLine();
 	if (ImGui::Button("Generate Next"))
-		caveGenerator.GenerateNext();
+		caveGenerator.GenerateNext();	
+	
+	ImGui::SameLine();
+	if (ImGui::Button("New Seed"))
+	{
+		unsigned int currentTime = static_cast<unsigned int>(std::time(NULL));
+		strcpy_s(randomSeed, std::to_string(currentTime).c_str());
+		caveGenerator.SetRandomSeed(randomSeed);
+	}
 
 	//ImGui::ProgressBar(0.5f);
 
