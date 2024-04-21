@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <chrono>
 
 #include "line.h"
 #include "tunnel_mesh.h"
@@ -25,6 +26,8 @@ void CaveGenerator::GenerateNext()
 {
 	// Should only seed on full regenerate
 	// std::srand(randomSeed);
+
+	auto start = std::chrono::high_resolution_clock::now();
 
 	std::string nextString = "";
 	for (int i = 0; i < CurrentString.length(); i++)
@@ -52,6 +55,12 @@ void CaveGenerator::GenerateNext()
 	std::cout << CurrentString << std::endl;
 
 	UpdateDraw();
+
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> duration = end - start;
+
+	std::cout << "Iteration time: " << duration.count() << std::endl;
+	std::cout << "Iteration meshes: " << tunnelMeshes.size() << std::endl;
 }
 
 void CaveGenerator::ReGenerateCurrent()
