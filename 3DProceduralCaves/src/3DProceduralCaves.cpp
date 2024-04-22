@@ -35,7 +35,7 @@ Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 int proceduralStage = 4;
 int preBlurSplitting = 2;
-int postBlurSplitting = 1;
+int postBlurSplitting = 3;
 int shaderRenderMode = 1;
 char randomSeed[255] = "";
 
@@ -449,7 +449,7 @@ void switchProceduralLevel(CaveGenerator& caveGenerator, int newLevel)
 	proceduralStage = newLevel;
 
 	caveGenerator.proceduralStage = proceduralStage;
-	caveGenerator.ReGenerateCurrent();
+	caveGenerator.ReGenerateCurrent(currentMeshHighlight);
 }
 
 std::array<std::string, 5> proceduralLevelNames = {
@@ -466,7 +466,14 @@ std::array<std::string, 5> proceduralLevelNames = {
 //	"Flat Shading"
 //};
 
-float floatParam = 45.0f;
+std::array<std::string, 3> noiseStrengthNames = {
+	"Low Frequency Noise",
+	"Medium Frequency Noise",
+	"High Frequency Noise"
+};
+
+float floatParam = 20.0f;
+
 void drawImGuiWindow(CaveGenerator& caveGenerator)
 {
 	// Start the Dear ImGui frame
@@ -512,11 +519,18 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 	if (ImGui::SliderInt("Post Blur Splitting", &postBlurSplitting, 0, 10))
 		caveGenerator.SetPostBlurSplitting(postBlurSplitting);
 
+	auto noiseStrengths = caveGenerator.GetNoiseStrengths();
+	for (int i = 0; i < noiseStrengths.size(); i++)
+	{
+		if (ImGui::SliderFloat(noiseStrengthNames[i].c_str(), &noiseStrengths[i], 0.0f, 1.0f))
+			caveGenerator.SetNoiseStrengths(noiseStrengths);
+	}
+
 	if (ImGui::InputText("Random Seed", randomSeed, 255))
 		caveGenerator.SetRandomSeed(randomSeed);
 
 	if (ImGui::Button("Regenerate Current"))
-		caveGenerator.ReGenerateCurrent();	
+		caveGenerator.ReGenerateCurrent(currentMeshHighlight);
 	
 	ImGui::SameLine();
 	if (ImGui::Button("Generate Next"))

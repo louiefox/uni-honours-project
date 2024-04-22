@@ -10,7 +10,7 @@
 
 CaveGenerator::CaveGenerator()
 {
-
+	perlinNoiseStrengths = { 0.5f, 0.05f, 0.02f };
 }
 
 CaveGenerator::~CaveGenerator()
@@ -63,10 +63,12 @@ void CaveGenerator::GenerateNext()
 	std::cout << "Iteration meshes: " << tunnelMeshes.size() << std::endl;
 }
 
-void CaveGenerator::ReGenerateCurrent()
+void CaveGenerator::ReGenerateCurrent(int highlightNum)
 {
 	std::cout << "Iteration " << currentIteration << std::endl;
 	std::cout << CurrentString << std::endl;
+
+	currentMeshHighlight = highlightNum;
 
 	UpdateDraw();
 }
@@ -105,7 +107,7 @@ void CaveGenerator::UpdateDraw()
 				// place tunnel building blocks
 				if (nextCharacter == '[') // place intersection if start of branch
 				{
-					currentValue.AdjustAngle = 35.0f + (std::rand() % (int)(20.0f));
+					currentValue.AdjustAngle = 35.0f + (std::rand() % (int)(adjustAngleRange));
 
 					TunnelIntersectionMesh* tunnelPiece = new TunnelIntersectionMesh(currentValue.AdjustAngle);
 					tunnelPiece->SetPosition(glm::vec3(LINE_END_POS.y, 0.0f, -LINE_END_POS.x));
@@ -173,6 +175,9 @@ void CaveGenerator::UpdateDraw()
 		}
 	}
 
+	if(currentMeshHighlight != -1)
+		(*tunnelMeshes[currentMeshHighlight]).isHighlighted = true;
+
 	// Generate and blur meshes
 	for (TunnelMesh* mesh : tunnelMeshes)
 		mesh->splitMeshTriangles(preBlurSplitting);	
@@ -189,13 +194,13 @@ void CaveGenerator::UpdateDraw()
 		}
 	}
 
-	for (TunnelMesh* mesh : tunnelMeshes)
-		mesh->splitMeshTriangles(postBlurSplitting);
-
 	if (proceduralStage >= 4)
 	{
 		for (TunnelMesh* mesh : tunnelMeshes)
-			mesh->generatePerlinNoise(randomSeed);
+			mesh->splitMeshTriangles(postBlurSplitting);
+
+		for (TunnelMesh* mesh : tunnelMeshes)
+			mesh->generatePerlinNoise(*this);
 	}
 
 	calculateMeshNormals();

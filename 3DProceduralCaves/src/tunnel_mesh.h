@@ -33,15 +33,19 @@ struct Vec3KeyFuncs
 	}
 };
 
+class CaveGenerator;
+
 class TunnelMesh : public GameObject
 {
 public:
 	TunnelMesh();
 	~TunnelMesh();
 
+	bool isHighlighted = false;
+
 	void generateGeometryBlurring();
 	void pushGeometryBlurring();
-	void generatePerlinNoise(unsigned int randomSeed);
+	void generatePerlinNoise(const CaveGenerator& caveGenerator);
 	void splitMeshTriangles(int timesToSplit);
 	void calculateNormals() { mMesh.calculateNormals(); }
 	void createNormalLines() { mMesh.createNormalLines(); }
@@ -80,5 +84,5 @@ protected:
 
 	void applyGeometryBlurring();
 	void pushBlurredVertices();
-	void applyPerlinNoise(unsigned int randomSeed);
+	void applyPerlinNoise(const CaveGenerator& caveGenerator);
 };

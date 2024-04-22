@@ -52,6 +52,4 @@ void Camera::applyKeyboardInput(CameraDirections direction, float speed)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
 		break;
 	}
-
-	//cameraPos.y = 0.0f; // disable vertical movement
 }

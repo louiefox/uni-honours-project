@@ -10,6 +10,7 @@
 
 #include "mesh.h"
 #include "game_object.h"
+#include "cave_generator.h"
 #include "PerlinNoise.hpp"
 
 TunnelMesh::TunnelMesh()
@@ -61,9 +62,9 @@ void TunnelMesh::pushGeometryBlurring()
 	pushBlurredVertices();
 }
 
-void TunnelMesh::generatePerlinNoise(unsigned int randomSeed)
+void TunnelMesh::generatePerlinNoise(const CaveGenerator& caveGenerator)
 {
-	applyPerlinNoise(randomSeed);
+	applyPerlinNoise(caveGenerator);
 }
 
 void TunnelMesh::generate()
@@ -215,20 +216,33 @@ void TunnelMesh::applyGeometryBlurring()
 	glm::mat4 inverseTransformMat = getWorldInverseMatrix();
 
 	// remove any duplicate vertices in search
-	std::set<comparableVec3> uniqueSearchVertices;
+	constexpr float epsilon = std::numeric_limits<float>::epsilon();
 	std::vector<Vertex> searchVertices;
 	for (int i = 0; i < tempSearchVertices.size(); i++)
 	{
 		const Vertex& vertex = tempSearchVertices[i];
-		comparableVec3 compareVec3 = { vertex.Position.x, vertex.Position.y, vertex.Position.z };
 
-		if (uniqueSearchVertices.find(compareVec3) != uniqueSearchVertices.end())
+		bool foundVertex = false;
+		for (int i = 0; i < searchVertices.size(); i++)
 		{
-			continue;
+			if (std::abs(searchVertices[i].Position.x - vertex.Position.x) < epsilon &&
+				std::abs(searchVertices[i].Position.y - vertex.Position.y) < epsilon &&
+				std::abs(searchVertices[i].Position.z - vertex.Position.z) < epsilon
+			)
+			{
+				foundVertex = true;
+				break;
+			}
 		}
 
-		uniqueSearchVertices.insert(compareVec3);
+		if (foundVertex) continue;
+
 		searchVertices.push_back(vertex);
+
+		//if (isHighlighted)
+		//{
+		//	std::cout << vertex.Position.x << ", " << vertex.Position.y << ", " << vertex.Position.z << std::endl;
+		//}
 	}
 
 	// loop through this mesh's vertices and blur
@@ -306,11 +320,9 @@ void TunnelMesh::pushBlurredVertices()
 	mMesh.setVertices(mTempBlurredVertices);
 }
 
-void TunnelMesh::applyPerlinNoise(unsigned int randomSeed)
+void TunnelMesh::applyPerlinNoise(const CaveGenerator& caveGenerator)
 {
-	splitMeshTriangles(2);
-
-	const siv::PerlinNoise::seed_type seed = randomSeed;
+	const siv::PerlinNoise::seed_type seed = caveGenerator.GetRandomSeed();
 	const siv::PerlinNoise perlin{ seed };
 
 	const std::vector<Vertex>& currentVertices = mMesh.getAllVertices();
@@ -318,25 +330,30 @@ void TunnelMesh::applyPerlinNoise(unsigned int randomSeed)
 	const glm::mat4 transformMat = getWorldMatrix();
 	const glm::mat4 inverseTransformMat = getWorldInverseMatrix();
 
+	auto noiseStrengths = caveGenerator.GetNoiseStrengths();
+
 	std::vector<Vertex> newVertices;
 	for (int i = 0; i < currentVertices.size(); i++)
 	{
 		glm::vec3 vertexPosition = transformVecByMatrix(currentVertices[i].Position, transformMat);
 
-		float noise = perlin.noise3D(vertexPosition.x * 3.0, vertexPosition.y * 3.0, vertexPosition.z * 3.0);
-		vertexPosition.x += noise * 0.05;
-		vertexPosition.y += noise * 0.05;
-		vertexPosition.z += noise * 0.05;		
+		// low frequency
+		float noise1 = perlin.noise3D(vertexPosition.x * 0.5, vertexPosition.y * 0.5, vertexPosition.z * 0.5);
+		vertexPosition.x += noise1 * noiseStrengths[0];
+		vertexPosition.y += noise1 * (noiseStrengths[0] * (0.3 / 0.5));
+		vertexPosition.z += noise1 * noiseStrengths[0];
+
+		// medium frequency
+		float noise2 = perlin.noise3D(vertexPosition.x * 3.0, vertexPosition.y * 3.0, vertexPosition.z * 3.0);
+		vertexPosition.x += noise2 * noiseStrengths[1];
+		vertexPosition.y += noise2 * noiseStrengths[1];
+		vertexPosition.z += noise2 * noiseStrengths[1];
 		
-		float noise2 = perlin.noise3D(vertexPosition.x * 20.0, vertexPosition.y * 20.0, vertexPosition.z * 20.0);
-		vertexPosition.x += noise2 * 0.02;
-		vertexPosition.y += noise2 * 0.02;
-		vertexPosition.z += noise2 * 0.02;		
-		
-		float noise3 = perlin.noise3D(vertexPosition.x * 0.5, vertexPosition.y * 0.5, vertexPosition.z * 0.5);
-		vertexPosition.x += noise3 * 0.5;
-		vertexPosition.y += noise3 * 0.3;
-		vertexPosition.z += noise3 * 0.5;
+		// high frequency
+		float noise3 = perlin.noise3D(vertexPosition.x * 20.0, vertexPosition.y * 20.0, vertexPosition.z * 20.0);
+		vertexPosition.x += noise3 * noiseStrengths[2];
+		vertexPosition.y += noise3 * noiseStrengths[2];
+		vertexPosition.z += noise3 * noiseStrengths[2];
 
 		newVertices.push_back({ transformVecByMatrix(vertexPosition, inverseTransformMat), currentVertices[i].TextureCoords });
 	}
