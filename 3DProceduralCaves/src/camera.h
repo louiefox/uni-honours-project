@@ -17,6 +17,7 @@ public:
 	float getYaw() { return yaw; }
 	float getPitch() { return pitch; }
 
+	void setPosition(glm::vec3 newPos) { cameraPos = newPos; }
 	glm::vec3 getPosition() { return cameraPos; }
 
 	glm::mat4 getViewMatrix();

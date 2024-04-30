@@ -32,6 +32,7 @@ float lastX = screenWidth / 2.0f, lastY = screenHeight / 2.0f; // last mouse pos
 bool mouseInputEnabled = true;
 
 Camera viewCamera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+bool isDemoActive = false;
 
 int proceduralStage = 4;
 int preBlurSplitting = 2;
@@ -49,7 +50,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+void processCameraMovement(CaveGenerator& caveGenerator);
 void drawImGuiWindow(CaveGenerator& caveGenerator);
+void drawDemoWindow(CaveGenerator& caveGenerator);
 
 void rotateByDegrees(glm::mat4& model, const glm::vec3& rotation)
 {
@@ -221,11 +224,15 @@ int main()
 		// Poll glfw events
 		glfwPollEvents();
 
-		// Draw imgui window
+		// Draw imgui windows
 		drawImGuiWindow(caveGenerator);
+		drawDemoWindow(caveGenerator);
 
 		// Process input
 		processInput(window);
+
+		// Camera movement
+		processCameraMovement(caveGenerator);
 
 		// Rendering commands
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // set background color
@@ -398,6 +405,10 @@ void processInput(GLFWwindow* window)
 		glfwSetInputMode(window, GLFW_CURSOR, mouseInputEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 	}	
 
+	// Prevent camera movement when demo active
+	if (isDemoActive)
+		return;
+
 	// Camera input
 	const bool isShiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 	const float cameraSpeed = static_cast<float>((isShiftPressed ? 5.0f : 1.0f) * deltaTime); // adjust accordingly
@@ -444,6 +455,67 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	viewCamera.setFOV(viewCamera.getFOV() + -2.0f * (float)yoffset);
 }
 
+// demo stuff
+unsigned int demoCurrentLine = 0;
+float demoNextLineTime = 0.0f;
+
+const float DEMO_LINE_DURATION = 2.0f;
+
+void processCameraMovement(CaveGenerator& caveGenerator)
+{
+	if (!isDemoActive)
+		return;
+
+	float currentTime = static_cast<float>(glfwGetTime());
+	if (currentTime >= demoNextLineTime)
+	{
+		if(demoNextLineTime > 0.0f) // only increment if not start - don't want to skip first line
+			demoCurrentLine++;
+
+		demoNextLineTime = currentTime + DEMO_LINE_DURATION;
+
+		if (demoCurrentLine >= caveGenerator.drawLines.size())
+			demoCurrentLine = 0;
+	}
+
+	const Line* const currentLine = caveGenerator.drawLines[demoCurrentLine];
+	const glm::vec3& lineStart = currentLine->vertices[0].Position;
+	const glm::vec3& lineEnd = currentLine->vertices[1].Position;
+
+	float travelPercent = 1 - ((demoNextLineTime - currentTime) / DEMO_LINE_DURATION);
+	viewCamera.setPosition(lineStart + ((lineEnd - lineStart) * travelPercent));
+}
+
+void drawDemoWindow(CaveGenerator& caveGenerator)
+{
+	ImGui::Begin("Cave Demo", NULL);
+
+	ImGui::TextColored(ImVec4(1, 1, 0, 1), "Start - play camera demo. Stop - cancel.");
+
+	float progressPercent = (float)demoCurrentLine / caveGenerator.drawLines.size();
+	if(isDemoActive)
+		progressPercent += (1 - ((demoNextLineTime - glfwGetTime()) / DEMO_LINE_DURATION)) * (1.0f / caveGenerator.drawLines.size());
+
+	ImGui::ProgressBar(progressPercent);
+
+	if (ImGui::Button("Start"))
+	{
+		isDemoActive = true;
+	}	
+
+	ImGui::SameLine();
+	
+	if (ImGui::Button("Stop"))
+	{
+		isDemoActive = false;
+		demoCurrentLine = 0;
+		demoNextLineTime = 0.0f;
+	}
+
+	ImGui::End();
+}
+
+// parameters menu stuff
 void switchProceduralLevel(CaveGenerator& caveGenerator, int newLevel)
 {
 	proceduralStage = newLevel;
@@ -459,12 +531,6 @@ std::array<std::string, 5> proceduralLevelNames = {
 	"Smoothing",
 	"Perlin Noise"
 };
-
-//std::array<std::string, 3> renderModes = {
-//	"Textured",
-//	"Smooth Shading",
-//	"Flat Shading"
-//};
 
 std::array<std::string, 3> noiseStrengthNames = {
 	"Low Frequency Noise",
@@ -562,22 +628,6 @@ void drawImGuiWindow(CaveGenerator& caveGenerator)
 
 	// Shading modes
 	ImGui::TextColored(ImVec4(1, 1, 1, 1), "Render modes:");
-
-	//if (ImGui::BeginCombo("Mode", renderModes[shaderRenderMode].c_str(), ImGuiComboFlags_NoArrowButton))
-	//{
-	//	for (int i = 0; i < renderModes.size(); i++)
-	//	{
-	//		bool isSelected = shaderRenderMode == i;
-
-	//		if (ImGui::Selectable(renderModes[i].c_str(), isSelected))
-	//			shaderRenderMode = i;
-
-	//		if (isSelected)
-	//			ImGui::SetItemDefaultFocus();
-	//	}
-
-	//	ImGui::EndCombo();
-	//}
 
 	if (ImGui::Button("0 - Textured"))
 		shaderRenderMode = 0;
