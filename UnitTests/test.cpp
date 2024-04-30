@@ -279,10 +279,7 @@ protected:
 // Test case to check generating geometry
 TEST(TunnelMeshTest, TestVertexSmoothing) {
     TunnelMesh tunnelMesh;
-
-    std::vector<TunnelMesh*> tunnelMeshes;
-
-    EXPECT_NO_THROW(tunnelMesh.generateGeometryBlurring(tunnelMeshes));
+    EXPECT_NO_THROW(tunnelMesh.generateGeometryBlurring());
 }
 
 // Test case to check setting and getting neighboring tunnel meshes
