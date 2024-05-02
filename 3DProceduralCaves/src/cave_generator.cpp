@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <chrono>
 
 #include "line.h"
@@ -214,9 +215,18 @@ const glm::vec2& CaveGenerator::getLineEndPos(glm::vec2 startPos, float radians)
 	return glm::vec2(startPos.x + (lineLength * std::cos(radians)), startPos.y + (lineLength * std::sin(radians)));
 }
 
+const float EPSILON = 0.000001f;
+struct Vec3DComparator {
+	bool operator()(const glm::vec3& p1, const glm::vec3& p2) const {
+		if (std::abs(p1.x - p2.x) > EPSILON) return p1.x < p2.x;
+		if (std::abs(p1.y - p2.y) > EPSILON) return p1.y < p2.y;
+		return p1.z < p2.z;
+	}
+};
+
 void CaveGenerator::calculateMeshNormals()
 {
-	std::unordered_map<glm::vec3, glm::vec3, Vec3KeyFuncs, Vec3KeyFuncs> vertexNormals; // stores each unique vertex
+	std::map<glm::vec3, glm::vec3, Vec3DComparator> vertexNormals;
 
 	for (TunnelMesh* mesh : tunnelMeshes)
 	{
@@ -231,15 +241,10 @@ void CaveGenerator::calculateMeshNormals()
 	}
 
 	// normalize normals
-	//drawLines.clear();
 	for (auto const& value : vertexNormals)
 	{
 		vertexNormals[value.first] = glm::normalize(value.second);
-
-		//drawLines.push_back(new Line(value.first, value.first + value.second * 0.1f));
 	}
-
-	std::cout << vertexNormals.size() << std::endl;
 
 	// update mesh normals
 	for (TunnelMesh* mesh : tunnelMeshes)
@@ -247,10 +252,20 @@ void CaveGenerator::calculateMeshNormals()
 		std::vector<Vertex>& meshVertices = mesh->getMesh().getVertices();
 
 		const glm::mat4 transformMat = mesh->getWorldMatrix();
+
+		// inverse transform matrix - just for rotation, as normal vectors should be local
+		glm::mat4 inverseTransformMat = glm::mat4(1.0f);
+
+		const glm::vec3 worldRotation = mesh->GetRotation();
+		inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.x), glm::vec3(1.0, 0.0, 0.0));
+		inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.y), glm::vec3(0.0, 1.0, 0.0));
+		inverseTransformMat = glm::rotate(inverseTransformMat, glm::radians(-worldRotation.z), glm::vec3(0.0, 0.0, 1.0));
+
 		for (int i = 0; i < meshVertices.size(); i++)
 		{
 			const glm::vec3 vertexWorldPos = mesh->transformVecByMatrix(meshVertices[i].Position, transformMat);
-			meshVertices[i].Normal = vertexNormals[vertexWorldPos];
+			meshVertices[i].Normal = mesh->transformVecByMatrix(vertexNormals[vertexWorldPos], inverseTransformMat);
+			//meshVertices[i].Normal = vertexNormals[vertexWorldPos];
 		}
 
 		// create normal lines

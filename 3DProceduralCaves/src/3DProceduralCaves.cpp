@@ -139,6 +139,7 @@ int main()
 	strcpy_s(randomSeed, std::to_string(currentTime).c_str());
 	caveGenerator.SetRandomSeed(randomSeed);
 
+	caveGenerator.proceduralStage = proceduralStage;
 	caveGenerator.GenerateNext();
 	caveGenerator.GenerateNext();
 
@@ -327,6 +328,7 @@ int main()
 			lineShaderProgram.use();
 			lineShaderProgram.setMat4("view", view);
 			lineShaderProgram.setMat4("projection", projection);
+			lineShaderProgram.setMat4("model", glm::mat4(1.0f));
 
 			for (Line* line : caveGenerator.drawLines)
 			{
